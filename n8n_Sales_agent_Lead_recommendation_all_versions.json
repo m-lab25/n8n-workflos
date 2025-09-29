@@ -1,0 +1,1585 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "content": "Lead Recommendation_v1",
+        "height": 464,
+        "width": 2224
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        240,
+        2880
+      ],
+      "id": "2971221a-e340-44a7-8458-f4d72de46d74",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1y7jcrKOeskvI1Po_anS5U9QenZgf-e-oPzMiliPwZOw",
+          "mode": "list",
+          "cachedResultName": "Lead Recommendation Sample data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1y7jcrKOeskvI1Po_anS5U9QenZgf-e-oPzMiliPwZOw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sales Record",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1y7jcrKOeskvI1Po_anS5U9QenZgf-e-oPzMiliPwZOw/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        544,
+        2992
+      ],
+      "id": "22add1b7-e913-4030-bdb3-174062e30149",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "UXBOTM3lVKiQ3txI",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1y7jcrKOeskvI1Po_anS5U9QenZgf-e-oPzMiliPwZOw",
+          "mode": "list",
+          "cachedResultName": "Lead Recommendation Sample data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1y7jcrKOeskvI1Po_anS5U9QenZgf-e-oPzMiliPwZOw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1305946999,
+          "mode": "list",
+          "cachedResultName": "Recommendation list",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1y7jcrKOeskvI1Po_anS5U9QenZgf-e-oPzMiliPwZOw/edit#gid=1305946999"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        544,
+        3136
+      ],
+      "id": "1d80affc-6d24-4287-add2-535eb433ef63",
+      "name": "Get row(s) in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "UXBOTM3lVKiQ3txI",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        768,
+        3056
+      ],
+      "id": "64c8abbd-e4de-49e7-b4f3-ba47ab5b0412",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "model": "sonar",
+        "messages": {
+          "message": [
+            {
+              "content": "=You are a sales enablement and storage domain assistant specialized in Pure Storage offerings. Recommend complementary Pure Storage products strictly from the approved list provided for the given service, then compose a concise, conversion-focused cold email. Return strictly valid JSON in the exact schema requested. Do not include markdown, commentary, citations, or extra keys.",
+              "role": "system"
+            },
+            {
+              "content": "=Context:\n\nis_from_list: {{$json.is_from_list}}\n\nClient Id: {{$json[\"Client Id\"]}}\n\nClient Name: {{$json[\"Client Name\"]}}\n\nClient Email: {{$json[\"Client Email address\"]}}\n\nService Sold: {{$json[\"Service Sold\"]}}\n\nApproved recommendation list for this service:\n{{ $json._recommendedMap[$json[\"Service Sold\"]] }}\n\nTask:\n\nPropose 3–6 “New Service Recommendations” using only items from the approved list above; output as a plain array of strings.\n\nWrite a personalized, professional cold email about these recommendations. Keep it 120–170 words, include a subject line, greet by name, highlight clear value, add a concrete next step, and a friendly sign-off.\n\nOutput JSON ONLY in this exact shape:\n{\n\"recommendations\": [\"...\",\"...\"],\n\"email_subject\": \"...\",\n\"email_body\": \"...\"\n}\n\nNotes:\n\nIf the approved list is empty or missing, still return valid JSON by selecting 3–6 relevant Pure Storage offerings aligned to the stated service (e.g., FlashArray, FlashBlade, Pure1, Portworx, Cloud Block Store, Evergreen//One)."
+            }
+          ]
+        },
+        "options": {},
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.perplexity",
+      "typeVersion": 1,
+      "position": [
+        1600,
+        3120
+      ],
+      "id": "d7206328-912d-4604-8b4c-7aafec5fe40a",
+      "name": "Message a model",
+      "credentials": {
+        "perplexityApi": {
+          "id": "2X923WJEbWR6QPD5",
+          "name": "Perplexity account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1y7jcrKOeskvI1Po_anS5U9QenZgf-e-oPzMiliPwZOw",
+          "mode": "list",
+          "cachedResultName": "Lead Recommendation Sample data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1y7jcrKOeskvI1Po_anS5U9QenZgf-e-oPzMiliPwZOw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sales Record",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1y7jcrKOeskvI1Po_anS5U9QenZgf-e-oPzMiliPwZOw/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Client Id": "={{ $json[\"Client Id\"] }}",
+            "Recommended from list": "={{ $json[\"Recommended from list\"] }}",
+            "Forwarded to LLM": "={{ $json[\"Forwarded to LLM\"] }}",
+            "Message to be send as cold email generated by LLM": "={{ $json[\"Message to be send as cold email generated by LLM\"] }}",
+            "Timestamp": "={{ $json.Timestamp }}",
+            "Product Recommended": "={{ $json[\"Product Recommended\"] }}"
+          },
+          "matchingColumns": [
+            "Client Id"
+          ],
+          "schema": [
+            {
+              "id": "Client Id",
+              "displayName": "Client Id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Client Name",
+              "displayName": "Client Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Client Email address",
+              "displayName": "Client Email address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Service Sold",
+              "displayName": "Service Sold",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Product Recommended",
+              "displayName": "Product Recommended",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Recommended from list",
+              "displayName": "Recommended from list",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Forwarded to LLM",
+              "displayName": "Forwarded to LLM",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Message to be send as cold email generated by LLM",
+              "displayName": "Message to be send as cold email generated by LLM",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2192,
+        3120
+      ],
+      "id": "df19d963-ded4-4888-b646-d4666281e3f0",
+      "name": "Append or update row in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "UXBOTM3lVKiQ3txI",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse Perplexity output, keep client fields, and stamp IST timestamps\n\n// --- Time helpers (IST = UTC+05:30) ---\nfunction toISOStringWithTz(date, tzMinutesOffset) {\n  const pad = n => String(Math.floor(Math.abs(n))).padStart(2, '0');\n  const local = new Date(date.getTime() + tzMinutesOffset * 60 * 1000);\n\n  const year = local.getUTCFullYear();\n  const month = pad(local.getUTCMonth() + 1);\n  const day = pad(local.getUTCDate());\n  const hours = pad(local.getUTCHours());\n  const minutes = pad(local.getUTCMinutes());\n  const seconds = pad(local.getUTCSeconds());\n\n  const sign = tzMinutesOffset >= 0 ? '+' : '-';\n  const hh = pad(tzMinutesOffset / 60);\n  const mm = pad(tzMinutesOffset % 60);\n\n  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}${sign}${hh}:${mm}`;\n}\n\nfunction formatReadableIST(isoWithOffset) {\n  const [datePart, timeAndOffset] = isoWithOffset.split('T');\n  const time = timeAndOffset.slice(0, 8);   // HH:MM:SS\n  const offset = timeAndOffset.slice(8);    // +05:30\n  return `${datePart} ${time} IST (${offset})`;\n}\n\nconst IST_OFFSET_MIN = 330;\nconst isoIst = toISOStringWithTz(new Date(), IST_OFFSET_MIN);\nconst readableIst = formatReadableIST(isoIst);\n\n// --- Safe JSON parsing for LLM content ---\nfunction safeParseJson(s) {\n  if (typeof s === 'object' && s !== null) return s;\n  if (typeof s !== 'string') return null;\n  try { return JSON.parse(s); } catch { return null; }\n}\n\nconst out = [];\n\nfor (const item of $input.all()) {\n  const j = item.json || {};\n\n  // Try typical Perplexity response shapes\n  let content = j.content || j.message || j.data || j.result || j.text;\n  if (content && typeof content === 'object' && content.content) content = content.content;\n  if (Array.isArray(j.choices) && j.choices[0]?.message?.content) content = j.choices[0].message.content;\n\n  // Parse payload\n  let payload = null;\n  if (typeof content === 'object' && content !== null) payload = content;\n  if (!payload) payload = safeParseJson(content);\n  if (!payload && typeof j === 'string') payload = safeParseJson(j);\n\n  // Fallbacks\n  const recs = Array.isArray(payload?.recommendations) ? payload.recommendations : [];\n  const subj = payload?.email_subject || 'Exploring ways to expand your Pure Storage value';\n  const body = payload?.email_body || `Hi ${j['Client Name'] || 'there'},\\n\\nWe’d love to share a few complementary Pure Storage services that can expand performance, resilience, and efficiency. If interested, reply to schedule a quick call.\\n\\nBest regards,\\nTeam`;\n  // NEW: capitalize each recommendation's first letter\nfunction capitalizeFirstLetter(s) {\n  if (!s) return s;\n  const str = String(s).trim();\n  return str.charAt(0).toUpperCase() + str.slice(1);\n}\nconst recsCapitalized = recs.map(capitalizeFirstLetter);\n\n\n  // Preserve client details; accept either Service Sold or Pure Storage Services Used field\n  const serviceSold = j['Service Sold'] ?? j['Pure Storage Services Used'] ?? '';\n\n  out.push({\n    json: {\n      'row_number': j['row_number'] ?? j['Row Number'] ?? '',\n      'Client Id': j['Client Id'],\n      'Client Name': j['Client Name'],\n      'Client Email address': j['Client Email address'],\n      'Service Sold': serviceSold,\n      'Product Recommended': recsCapitalized.join(', '),\n      'Recommended from list': 'No',\n      'Forwarded to LLM': 'Yes',\n      'Message to be send as cold email generated by LLM': `Subject: ${subj}\\n\\n${body}`,\n      // Human-friendly and machine-friendly timestamps in IST\n      'Timestamp': readableIst,\n      //'Timestamp (ISO+Offset)': isoIst\n    }\n  });\n}\n\nreturn out;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2000,
+        3120
+      ],
+      "id": "c655b56a-12ba-45b8-84f6-895c8b0fe9b5",
+      "name": "Code in JavaScript3"
+    },
+    {
+      "parameters": {
+        "jsCode": "// BuildMap (case-insensitive)\n// Separates sales vs mapping, builds a recommendedMap where values are lowercased.\n// Downstream should also lowercase proposed items before comparison.\n\nconst incoming = $input.all();\n\nfunction toList(value) {\n  if (Array.isArray(value)) return value;\n  if (typeof value === 'string') return value.split(',').map(s => s.trim()).filter(Boolean);\n  if (value == null) return [];\n  return [String(value).trim()].filter(Boolean);\n}\n\nconst sales = [];\nconst mapping = [];\nfor (const it of incoming) {\n  const j = it.json || {};\n  const hasSalesKeys = ('Client Id' in j) || ('Client Name' in j) || ('Client Email address' in j) || ('Pure Storage Services Used' in j);\n  const hasMapKeys = ('Pure Storage Service' in j) || ('Associated Products' in j);\n  if (hasMapKeys && !hasSalesKeys) mapping.push(j);\n  else if (hasSalesKeys) sales.push(j);\n}\n\nconst recommendedMap = {};\nfor (const row of mapping) {\n  const svc = String(row['Pure Storage Service'] || '').trim();\n  if (!svc) continue;\n  const assoc = toList(row['Associated Products']).map(s => s.toLowerCase());\n  if (!recommendedMap[svc]) recommendedMap[svc] = new Set();\n  for (const a of assoc) recommendedMap[svc].add(a);\n}\nconst recommendedMapArr = {};\nfor (const k of Object.keys(recommendedMap)) {\n  recommendedMapArr[k] = Array.from(recommendedMap[k]);\n}\n\nreturn sales.map(row => ({ json: { ...row, _recommendedMap: recommendedMapArr } }));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        928,
+        3056
+      ],
+      "id": "96eb89be-9bee-451a-83a7-cbfc6836c3ce",
+      "name": "BuildMap"
+    },
+    {
+      "parameters": {
+        "jsCode": "// MatchPerRow (case-insensitive, robust)\n\n// Helpers\nfunction toList(value) {\n  if (Array.isArray(value)) return value;\n  if (typeof value === 'string') return value.split(',').map(s => s.trim()).filter(Boolean);\n  if (value == null) return [];\n  return [String(value).trim()].filter(Boolean);\n}\n\nfunction dedupeKeepCase(arr) {\n  const seen = new Set();\n  const out = [];\n  for (const v of arr) {\n    const low = String(v).toLowerCase();\n    if (!seen.has(low)) {\n      seen.add(low);\n      out.push(String(v).trim());\n    }\n  }\n  return out.filter(Boolean);\n}\n\nconst results = [];\n\nfor (const item of $input.all()) {\n  const row = item.json || {};\n\n  // Accept either field naming convention\n  const svc = String(row['Pure Storage Services Used'] ?? row['Service Sold'] ?? '').trim();\n\n  // Accept either field for proposed list\n  const proposedRaw = row['New Service Recommendations'] ?? row['Product Recommended'] ?? '';\n  const proposed = toList(proposedRaw);\n  const proposedClean = dedupeKeepCase(proposed);\n\n  // Map of allowed recs by service should be attached by the previous node\n  const recMap = row._recommendedMap || {};\n  // The BuildMap variant A stores lowercase values; still normalize to be safe\n  const allowedLower = (recMap[svc] || []).map(s => String(s).toLowerCase());\n  const allowedSet = new Set(allowedLower);\n\n  const matched = [];\n  const missing = [];\n\n  for (const p of proposedClean) {\n    const low = p.toLowerCase();\n    if (allowedSet.has(low)) matched.push(p);\n    else missing.push(p);\n  }\n\n  // Business rule: mark true when there is at least one proposed and none are outside the list\n  const is_from_list = proposedClean.length > 0 && missing.length === 0;\n\n  results.push({\n    json: {\n      ...row,\n      matched,\n      missing,\n      is_from_list,\n      normalized_recommendations: proposedClean.join(', ')\n    }\n  });\n}\n\nreturn results;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1104,
+        3056
+      ],
+      "id": "d302f41e-d023-453e-9725-93abef861847",
+      "name": "MatchPerRow"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "412c2b66-7ebd-4a48-b184-47c9f545d321",
+              "name": "Client Id",
+              "value": "={{ $('If1').item.json[\"Client Id\"] }}",
+              "type": "number"
+            },
+            {
+              "id": "78cefd84-aa6a-49bf-8d91-977ad9a2e263",
+              "name": "Client Name",
+              "value": "={{ $('If1').item.json[\"Client Name\"] }}",
+              "type": "string"
+            },
+            {
+              "id": "d5306fce-188b-441c-9904-142e56e7e6d6",
+              "name": "Service Sold",
+              "value": "={{ $('If1').item.json[\"Service Sold\"] }}",
+              "type": "string"
+            },
+            {
+              "id": "58f940df-7742-4d12-8bba-cfaa3befc254",
+              "name": "choices[0].message.content",
+              "value": "={{ $json.choices[0].message.content }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1808,
+        3120
+      ],
+      "id": "e7fd0ca1-5293-4195-8c7f-8ab21ad0f6f8",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1y7jcrKOeskvI1Po_anS5U9QenZgf-e-oPzMiliPwZOw",
+          "mode": "list",
+          "cachedResultName": "Lead Recommendation Sample data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1y7jcrKOeskvI1Po_anS5U9QenZgf-e-oPzMiliPwZOw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sales Record",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1y7jcrKOeskvI1Po_anS5U9QenZgf-e-oPzMiliPwZOw/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Client Id": "={{ $json[\"Client Id\"] }}",
+            "Recommended from list": "={{ $json[\"Recommended from list\"] }}",
+            "Forwarded to LLM": "={{ $json[\"Forwarded to LLM\"] }}",
+            "Timestamp": "={{ $json.Timestamp }}"
+          },
+          "matchingColumns": [
+            "Client Id"
+          ],
+          "schema": [
+            {
+              "id": "Client Id",
+              "displayName": "Client Id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Client Name",
+              "displayName": "Client Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Client Email address",
+              "displayName": "Client Email address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Service Sold",
+              "displayName": "Service Sold",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Product Recommended",
+              "displayName": "Product Recommended",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Recommended from list",
+              "displayName": "Recommended from list",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Forwarded to LLM",
+              "displayName": "Forwarded to LLM",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Message to be send as cold email generated by LLM",
+              "displayName": "Message to be send as cold email generated by LLM",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1856,
+        2960
+      ],
+      "id": "24f81753-2a97-4209-b43c-702328a2ace3",
+      "name": "Append or update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "UXBOTM3lVKiQ3txI",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build a human-friendly IST timestamp and also an ISO-with-offset string\nfunction toISOStringWithTz(date, tzMinutesOffset) {\n  const pad = n => String(Math.floor(Math.abs(n))).padStart(2, '0');\n  const local = new Date(date.getTime() + tzMinutesOffset * 60 * 1000);\n\n  const year = local.getUTCFullYear();\n  const month = pad(local.getUTCMonth() + 1);\n  const day = pad(local.getUTCDate());\n  const hours = pad(local.getUTCHours());\n  const minutes = pad(local.getUTCMinutes());\n  const seconds = pad(local.getUTCSeconds());\n\n  const sign = tzMinutesOffset >= 0 ? '+' : '-';\n  const hh = pad(tzMinutesOffset / 60);\n  const mm = pad(tzMinutesOffset % 60);\n\n  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}${sign}${hh}:${mm}`;\n}\n\nfunction formatReadableIST(isoWithOffset) {\n  // Convert \"YYYY-MM-DDTHH:MM:SS+05:30\" -> \"YYYY-MM-DD HH:MM:SS IST (+05:30)\"\n  const [datePart, timeAndOffset] = isoWithOffset.split('T');\n  const time = timeAndOffset.slice(0, 8); // HH:MM:SS\n  const offset = timeAndOffset.slice(8);  // +05:30\n  return `${datePart} ${time} IST (${offset})`;\n}\n\nconst IST_OFFSET_MIN = 330; // UTC+05:30\nconst isoIst = toISOStringWithTz(new Date(), IST_OFFSET_MIN);\nconst readableIst = formatReadableIST(isoIst);\n\nconst output = [];\nfor (const item of $input.all()) {\n  const j = item.json;\n\n  const finalRecs = (j.normalized_recommendations && j.normalized_recommendations.length)\n    ? j.normalized_recommendations\n    : (Array.isArray(j.matched) ? j.matched.join(', ') : (j['New Service Recommendations'] || j['Product Recommended'] || ''));\n\n  output.push({\n    json: {\n      'Client Id': j['Client Id'],\n      'Client Name': j['Client Name'],\n      'Client Email address': j['Client Email address'],\n      'Service Sold': j['Pure Storage Services Used'] ?? j['Service Sold'],\n      'Product Recommended': finalRecs,\n      'Recommended from list': 'Yes',\n      'Forwarded to LLM': 'No',\n      'Message to be send as cold email generated by LLM': j['Message to be send as cold email generated by LLM'] || '',\n      // Renamed field to \"Timestamp\" with readable format\n      'Timestamp': readableIst,\n      // Optional: also store raw ISO with offset for systems\n      //'Timestamp (ISO+Offset)': isoIst\n    }\n  });\n}\n\nreturn output;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1600,
+        2960
+      ],
+      "id": "53a4f125-a16b-4eca-9b25-dcb52debd6b5",
+      "name": "Format Output"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "b1ab214a-430b-4512-84d5-c005f072b973",
+              "leftValue": "={{ $json.is_from_list }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1280,
+        3056
+      ],
+      "id": "2f7834ac-b9e9-4fa0-bf18-a05e6cc1311a",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "content": "Lead Recommendation_v2",
+        "height": 432,
+        "width": 1856
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        512,
+        3664
+      ],
+      "id": "6a1bfd3e-b572-409f-bd79-5951c032ddf6",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1y7jcrKOeskvI1Po_anS5U9QenZgf-e-oPzMiliPwZOw",
+          "mode": "list",
+          "cachedResultName": "Lead Recommendation Sample data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1y7jcrKOeskvI1Po_anS5U9QenZgf-e-oPzMiliPwZOw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 15024551,
+          "mode": "list",
+          "cachedResultName": "Sales Record_v2",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1y7jcrKOeskvI1Po_anS5U9QenZgf-e-oPzMiliPwZOw/edit#gid=15024551"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        752,
+        3744
+      ],
+      "id": "c2f218c0-6366-4b58-ba0f-136194ad5145",
+      "name": "Get row(s) in sheet2",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "UXBOTM3lVKiQ3txI",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1y7jcrKOeskvI1Po_anS5U9QenZgf-e-oPzMiliPwZOw",
+          "mode": "list",
+          "cachedResultName": "Lead Recommendation Sample data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1y7jcrKOeskvI1Po_anS5U9QenZgf-e-oPzMiliPwZOw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1715613241,
+          "mode": "list",
+          "cachedResultName": "Recommendation list_v2",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1y7jcrKOeskvI1Po_anS5U9QenZgf-e-oPzMiliPwZOw/edit#gid=1715613241"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        752,
+        3888
+      ],
+      "id": "021b95b7-9205-4313-8119-de1739a16f35",
+      "name": "Get row(s) in sheet3",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "UXBOTM3lVKiQ3txI",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        976,
+        3824
+      ],
+      "id": "4e4d5fe5-5a36-4b42-89d7-8918dc2b4c07",
+      "name": "Merge2"
+    },
+    {
+      "parameters": {
+        "model": "sonar",
+        "messages": {
+          "message": [
+            {
+              "content": "=You are a sales enablement and storage domain assistant specialized in Pure Storage offerings. Recommend complementary Pure Storage products strictly from the approved list provided for the client’s inquired service, then compose a concise, conversion-focused cold email. Return strictly valid JSON in the exact schema requested. Do not include markdown, commentary, citations, or extra keys.",
+              "role": "system"
+            },
+            {
+              "content": "=Context:\n\nClient Id: {{$json[\"Client Id\"]}}\n\nClient Name: {{$json[\"Client Name\"]}}\n\nClient Email: {{$json[\"Client Email address\"]}}\n\nProduct Inquiry: {{$json[\"Product Inquiry\"]}}\n\nApproved recommendation list for this service:\n{{ $json._approvedForInquiry }}\n\nTask:\n\nPropose 4–6 “Product Recommended” using only items from the approved list above; output as a plain array of strings.\n\nWrite a personalized, professional cold email about these recommendations. Keep it 120–170 words, include a subject line, greet by name, highlight clear value, add a concrete next step, and a friendly sign-off.\n\nOutput JSON ONLY in this exact shape:\n{\n\"recommendations\": [\"...\",\"...\"],\n\"email_subject\": \"...\",\n\"email_body\": \"...\"\n}\n\nNotes:\n\nIf the approved list is empty or missing, still return valid JSON by selecting 4–6 widely adopted Pure Storage offerings aligned to the inquiry (e.g., FlashArray, FlashBlade, Pure1, Portworx, Cloud Block Store, Evergreen//One).\n\nTip: If available in the Perplexity node, set response_format to a JSON schema enforcing:\n{\ntype: \"object\",\nproperties: {\nrecommendations: { type: \"array\", items: { type: \"string\" }, minItems: 4, maxItems: 6 },\nemail_subject: { type: \"string\" },\nemail_body: { type: \"string\" }\n},\nrequired: [\"recommendations\",\"email_subject\",\"email_body\"],\nadditionalProperties: false\n}\nto increase compliance."
+            }
+          ]
+        },
+        "options": {},
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.perplexity",
+      "typeVersion": 1,
+      "position": [
+        1728,
+        3888
+      ],
+      "id": "55875257-a511-43a3-8425-7ae0b0b94026",
+      "name": "Message a model1",
+      "credentials": {
+        "perplexityApi": {
+          "id": "2X923WJEbWR6QPD5",
+          "name": "Perplexity account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1y7jcrKOeskvI1Po_anS5U9QenZgf-e-oPzMiliPwZOw",
+          "mode": "list",
+          "cachedResultName": "Lead Recommendation Sample data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1y7jcrKOeskvI1Po_anS5U9QenZgf-e-oPzMiliPwZOw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 15024551,
+          "mode": "list",
+          "cachedResultName": "Sales Record_v2",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1y7jcrKOeskvI1Po_anS5U9QenZgf-e-oPzMiliPwZOw/edit#gid=15024551"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Client Id": "={{ $json[\"Client Id\"] }}",
+            "Forwarded to LLM": "={{ $json[\"Forwarded to LLM\"] }}",
+            "Timestamp": "={{ $json.Timestamp }}",
+            "Product Recommended": "={{ $json[\"Product Recommended\"] }}",
+            "Email Message": "={{ $json[\"Email Message\"] }}"
+          },
+          "matchingColumns": [
+            "Client Id"
+          ],
+          "schema": [
+            {
+              "id": "Client Id",
+              "displayName": "Client Id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Client Name",
+              "displayName": "Client Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Client Email address",
+              "displayName": "Client Email address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Product Inquiry",
+              "displayName": "Product Inquiry",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Product Recommended",
+              "displayName": "Product Recommended",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email Message",
+              "displayName": "Email Message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Forwarded to LLM",
+              "displayName": "Forwarded to LLM",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1760,
+        3712
+      ],
+      "id": "614d3b90-7e56-4c8a-81aa-25d670903cae",
+      "name": "Append or update row in sheet2",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "UXBOTM3lVKiQ3txI",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// BuildMap + Prepare Inquiry Items (case-insensitive)\n// Input: Mixed items from Sales Record (with \"Product Inquiry\") and Recommendation list\n// Output: One item per sales row with:\n//   - _recommendedMap: { serviceName -> [lowercase associated products] }\n//   - _approvedForInquiry: [lowercase associated products for the row's Product Inquiry]\n//   - _inquiryService: normalized Product Inquiry string\n// Note: Does NOT set \"Forwarded to LLM\".\n\nfunction toList(value) {\n  if (Array.isArray(value)) return value;\n  if (typeof value === 'string') return value.split(',').map(s => s.trim()).filter(Boolean);\n  if (value == null) return [];\n  return [String(value).trim()].filter(Boolean);\n}\n\nconst incoming = $input.all();\n\n// Split into sales vs mapping\nconst sales = [];\nconst mapping = [];\n\nfor (const it of incoming) {\n  const j = it.json || {};\n  const hasSalesKeys =\n    ('Client Id' in j) ||\n    ('Client Name' in j) ||\n    ('Client Email address' in j) ||\n    ('Product Inquiry' in j);\n  const hasMapKeys =\n    ('Pure Storage Service' in j) ||\n    ('Associated Products' in j);\n\n  if (hasMapKeys && !hasSalesKeys) mapping.push(j);\n  else if (hasSalesKeys) sales.push(j);\n}\n\n// Build the recommended map: { serviceName -> Set(lowercase products) }\nconst recommendedMap = {};\nfor (const row of mapping) {\n  const svc = String(row['Pure Storage Service'] || '').trim();\n  if (!svc) continue;\n  const assoc = toList(row['Associated Products']).map(s => s.toLowerCase());\n  if (!recommendedMap[svc]) recommendedMap[svc] = new Set();\n  for (const a of assoc) recommendedMap[svc].add(a);\n}\n\n// Convert sets to arrays\nconst recommendedMapArr = {};\nfor (const k of Object.keys(recommendedMap)) {\n  recommendedMapArr[k] = Array.from(recommendedMap[k]);\n}\n\n// Produce one output item per sales row with inquiry-based approved list\nconst out = [];\nfor (let i = 0; i < sales.length; i++) {\n  const row = sales[i] || {};\n  const inquiry = String(row['Product Inquiry'] || '').trim();\n  const approvedForInquiry = Array.isArray(recommendedMapArr[inquiry]) ? recommendedMapArr[inquiry] : [];\n\n  out.push({\n    json: {\n      ...row,\n      _recommendedMap: recommendedMapArr,     // full dictionary for downstream reference\n      _approvedForInquiry: approvedForInquiry, // lowercase array for the inquiry\n      _inquiryService: inquiry\n      // Intentionally NOT setting \"Forwarded to LLM\"\n    },\n    pairedItem: { item: i }\n  });\n}\n\nreturn out;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1168,
+        3824
+      ],
+      "id": "5bc5fe34-7797-4020-9c54-ea31146d790c",
+      "name": "BuildMap1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "412c2b66-7ebd-4a48-b184-47c9f545d321",
+              "name": "Client Id",
+              "value": "={{ $('If2').item.json[\"Client Id\"] }}",
+              "type": "number"
+            },
+            {
+              "id": "78cefd84-aa6a-49bf-8d91-977ad9a2e263",
+              "name": "Client Name",
+              "value": "={{ $('If2').item.json[\"Client Name\"] }}",
+              "type": "string"
+            },
+            {
+              "id": "3543d52c-a425-44db-890f-8460b497b760",
+              "name": "Product Inquiry",
+              "value": "={{ $('If2').item.json[\"Product Inquiry\"] }}",
+              "type": "string"
+            },
+            {
+              "id": "58f940df-7742-4d12-8bba-cfaa3befc254",
+              "name": "choices[0].message.content",
+              "value": "={{ $json.choices[0].message.content }}",
+              "type": "string"
+            },
+            {
+              "id": "d99f7239-16ea-4342-8c69-1fdac2187503",
+              "name": "Forwarded to LLM",
+              "value": "={{ $('If2').item.json[\"Forwarded to LLM\"] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1920,
+        3888
+      ],
+      "id": "c1d53bee-d790-47c0-946e-f6f641a04851",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse LLM Output → finalize fields for Sales Record\n// - Sets \"Forwarded to LLM\" = \"Yes\"\n// - Capitalizes first letter of each recommendation\n// - Uses upstream IST Timestamp if present; else computes IST locally\n\n// If a Date & Time node set a field \"Timestamp\" (Asia/Kolkata), prefer that; else compute here.\nfunction toISOStringWithTz(date, tzMinutesOffset) {\n  const pad = n => String(Math.floor(Math.abs(n))).padStart(2, '0');\n  const local = new Date(date.getTime() + tzMinutesOffset * 60 * 1000);\n  const year = local.getUTCFullYear();\n  const month = pad(local.getUTCMonth() + 1);\n  const day = pad(local.getUTCDate());\n  const hours = pad(local.getUTCHours());\n  const minutes = pad(local.getUTCMinutes());\n  const seconds = pad(local.getUTCSeconds());\n  const sign = tzMinutesOffset >= 0 ? '+' : '-';\n  const hh = pad(tzMinutesOffset / 60);\n  const mm = pad(tzMinutesOffset % 60);\n  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}${sign}${hh}:${mm}`;\n}\nfunction formatReadableIST(isoWithOffset) {\n  const [datePart, timeAndOffset] = isoWithOffset.split('T');\n  const time = timeAndOffset.slice(0, 8);\n  const offset = timeAndOffset.slice(8);\n  return `${datePart} ${time} IST (${offset})`;\n}\nconst IST_OFFSET_MIN = 330;\n\n// Safe JSON parse\nfunction safeParseJson(s) {\n  if (typeof s === 'object' && s !== null) return s;\n  if (typeof s !== 'string') return null;\n  try { return JSON.parse(s); } catch { return null; }\n}\n\nfunction capitalizeFirst(s) {\n  if (!s) return s;\n  const t = String(s).trim();\n  return t.charAt(0).toUpperCase() + t.slice(1);\n}\n\nconst out = [];\nconst items = $input.all();\n\nfor (let i = 0; i < items.length; i++) {\n  const j = items[i].json || {};\n\n  // Prefer upstream Date & Time node field if present (configured with Asia/Kolkata)\n  let readableIst = j.Timestamp;\n  if (!readableIst) {\n    const isoIst = toISOStringWithTz(new Date(), IST_OFFSET_MIN);\n    readableIst = formatReadableIST(isoIst);\n  }\n\n  // Common Perplexity response shapes\n  let content = j.content || j.message || j.data || j.result || j.text;\n  if (content && typeof content === 'object' && content.content) content = content.content;\n  if (Array.isArray(j.choices) && j.choices[0]?.message?.content) content = j.choices[0].message.content;\n\n  // Parse structured output\n  let payload = null;\n  if (typeof content === 'object' && content !== null) payload = content;\n  if (!payload) payload = safeParseJson(content);\n  if (!payload && typeof j === 'string') payload = safeParseJson(j);\n\n  // Extract with safe fallbacks\n  const recs = Array.isArray(payload?.recommendations) ? payload.recommendations : [];\n  const recsCap = recs.map(capitalizeFirst);\n  const subj = payload?.email_subject || 'Pure Storage recommendations tailored to your inquiry';\n  const body = payload?.email_body || `Hi ${j['Client Name'] || 'there'},\\n\\nHere are recommended Pure Storage offerings aligned to your inquiry. Happy to schedule a quick call to discuss fit and next steps.\\n\\nBest regards,\\nTeam`;\n\n  out.push({\n    json: {\n      'Client Id': j['Client Id'],\n      'Client Name': j['Client Name'],\n      'Client Email address': j['Client Email address'],\n      'Product Inquiry': j['Product Inquiry'],\n      'Product Recommended': recsCap.join(', '),\n      'Forwarded to LLM': 'Yes',             \n      'Email Message': `Subject: ${subj}\\n\\n${body}`,\n      'Timestamp': readableIst\n    },\n    pairedItem: { item: i }\n  });\n}\n\nreturn out;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2112,
+        3888
+      ],
+      "id": "17488719-de99-4105-9d04-3847936044c7",
+      "name": "Parse LLM Output"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "1293f28b-9927-4d96-9b76-8a7a8c527156",
+              "leftValue": "={{ $json[\"Forwarded to LLM\"] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1344,
+        3824
+      ],
+      "id": "6af85ef9-67e0-4763-91a1-2b3b95f8dc10",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1552,
+        3808
+      ],
+      "id": "e15b99ff-07dc-491f-b932-08424b9bc01b",
+      "name": "Loop Over Items2"
+    },
+    {
+      "parameters": {
+        "content": "Lead Recommendation_v3",
+        "height": 432,
+        "width": 1936
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        352,
+        4528
+      ],
+      "id": "1dfc3b9e-7bed-40c4-bba9-490fffe46b39",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1y7jcrKOeskvI1Po_anS5U9QenZgf-e-oPzMiliPwZOw",
+          "mode": "list",
+          "cachedResultName": "Lead Recommendation Sample data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1y7jcrKOeskvI1Po_anS5U9QenZgf-e-oPzMiliPwZOw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1715613241,
+          "mode": "list",
+          "cachedResultName": "Recommendation list_v2",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1y7jcrKOeskvI1Po_anS5U9QenZgf-e-oPzMiliPwZOw/edit#gid=1715613241"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        688,
+        4752
+      ],
+      "id": "ab5275ac-f088-4a30-a65c-4b6282491dac",
+      "name": "Get row(s) in sheet5",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "UXBOTM3lVKiQ3txI",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        912,
+        4688
+      ],
+      "id": "3fa163f6-5949-4a86-ad33-9be1a4effeb2",
+      "name": "Merge3"
+    },
+    {
+      "parameters": {
+        "model": "sonar",
+        "messages": {
+          "message": [
+            {
+              "content": "=You are a sales enablement and storage domain assistant specialized in Pure Storage offerings. Recommend complementary Pure Storage products strictly from the approved list provided for the client’s inquired service, then compose a concise, conversion-focused cold email. Return strictly valid JSON in the exact schema requested. Do not include markdown, commentary, citations, or extra keys.",
+              "role": "system"
+            },
+            {
+              "content": "=Context:\n\nClient Id: {{ $json.Client_Id__c }}\n\nCompany: {{ $json.Company }}\n\nClient Name: {{ $json.Name }}\n\nEmail: {{ $json.Email }}\n\nProduct Inquiry: {{ $json.Product_Inquiry__c }}\n\nApproved recommendation list for this service:\n{{ $json._approvedForInquiry }}\n\nTask:\n\nPropose 4–6 “Product Recommended” using only items from the approved list above; output as a plain array of strings.\n\nWrite a personalized, professional cold email about these recommendations. Keep it 120–170 words, include a subject line, greet by name, highlight clear value, add a concrete next step, and a friendly sign-off.\n\nOutput JSON ONLY in this exact shape:\n{\n\"recommendations\": [\"...\",\"...\"],\n\"email_subject\": \"...\",\n\"email_body\": \"...\"\n}\n\nNotes:\n\nIf the approved list is empty or missing, still return valid JSON by selecting 4–6 widely adopted Pure Storage offerings aligned to the inquiry (e.g., FlashArray, FlashBlade, Pure1, Portworx, Cloud Block Store, Evergreen//One).\n\nTip: If available in the Perplexity node, set response_format to a JSON schema enforcing:\n{\ntype: \"object\",\nproperties: {\nrecommendations: { type: \"array\", items: { type: \"string\" }, minItems: 4, maxItems: 6 },\nemail_subject: { type: \"string\" },\nemail_body: { type: \"string\" }\n},\nrequired: [\"recommendations\",\"email_subject\",\"email_body\"],\nadditionalProperties: false\n}\nto increase compliance."
+            }
+          ]
+        },
+        "options": {},
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.perplexity",
+      "typeVersion": 1,
+      "position": [
+        1728,
+        4736
+      ],
+      "id": "488835ae-a23e-4881-8049-ce05340f105d",
+      "name": "Message a model2",
+      "credentials": {
+        "perplexityApi": {
+          "id": "2X923WJEbWR6QPD5",
+          "name": "Perplexity account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Code node: Map recommendations to leads\n// Input: Mixed items from Salesforce Get Many (Lead) and Google Sheets (recommendation list)\n// Output: One item per lead with _recommendedMap, _approvedForInquiry, _inquiryService\n\nfunction toList(value) {\n  if (Array.isArray(value)) return value;\n  if (typeof value === 'string') {\n    return value.split(',').map(s => s.trim()).filter(Boolean);\n  }\n  if (value == null) return [];\n  return [String(value).trim()].filter(Boolean);\n}\n\nfunction lcArray(arr) {\n  return toList(arr).map(s => String(s).toLowerCase());\n}\n\nfunction pick(obj, keys) {\n  const out = {};\n  for (const k of keys) if (k in obj) out[k] = obj[k];\n  return out;\n}\n\nconst incoming = $input.all();\n\n// Separate into Lead rows and Recommendation rows\nconst leads = [];\nconst recRows = [];\n\nfor (const item of incoming) {\n  const j = item.json ?? {};\n\n  const isLead =\n    // From Salesforce: attributes.type === 'Lead' or presence of typical Lead keys\n    (j?.attributes?.type === 'Lead') ||\n    ('Product_Inquiry__c' in j) ||\n    ('Status' in j) ||\n    ('Company' in j && ('Email' in j || 'Name' in j));\n\n  const isRec =\n    ('Pure Storage Service' in j) ||\n    ('Associated Products' in j);\n\n  if (isRec && !isLead) {\n    recRows.push(j);\n  } else if (isLead) {\n    leads.push(j);\n  }\n}\n\n// Build service -> Set(products lowercase)\nconst recommendedMap = {};\nfor (const row of recRows) {\n  const svc = String(row['Pure Storage Service'] ?? '').trim();\n  if (!svc) continue;\n  const assoc = lcArray(row['Associated Products']);\n  if (!recommendedMap[svc]) recommendedMap[svc] = new Set();\n  for (const p of assoc) recommendedMap[svc].add(p);\n}\n\n// Convert Sets to arrays for output\nconst recommendedMapArr = {};\nfor (const k of Object.keys(recommendedMap)) {\n  recommendedMapArr[k] = Array.from(recommendedMap[k]);\n}\n\n// Field normalization for leads coming from different sources\nfunction normalizeLead(row) {\n  // Prefer Salesforce API names when present\n  const norm = {\n    ClientId: row.Client_Id__c ?? row['Client Id'] ?? row['ClientId'] ?? row['Id'] ?? row['Lead Id'],\n    Company: row.Company ?? row['Company'],\n    Name: row.Name ?? row['Client Name'] ?? row['Full Name'],\n    Email: row.Email ?? row['Client Email address'] ?? row['Email Address'],\n    Phone: row.Phone ?? row['Phone'] ?? row['MobilePhone'],\n    Status: row.Status ?? row['Lead Status'] ?? row['Status'],\n  };\n\n  // Product Inquiry could be custom API name or human label\n  const inquiry =\n    row.Product_Inquiry__c ??\n    row['Product Inquiry'] ??\n    row['Pure Storage Service'] ?? // fallback if the lead already carries service column\n    '';\n\n  norm.ProductInquiry = String(inquiry ?? '').trim();\n\n  return { ...row, ...norm };\n}\n\n// Produce output: one per lead with approved products\nconst out = [];\n\nfor (let i = 0; i < leads.length; i++) {\n  const row = normalizeLead(leads[i] ?? {});\n  const inquiry = row.ProductInquiry;\n\n  const approvedForInquiry = Array.isArray(recommendedMapArr[inquiry])\n    ? recommendedMapArr[inquiry]\n    : [];\n\n  // Keep original row data, add normalized fields and mappings\n  out.push({\n    json: {\n      ...row,\n      _recommendedMap: recommendedMapArr,\n      _approvedForInquiry: approvedForInquiry,\n      _inquiryService: inquiry\n    },\n    pairedItem: { item: i }\n  });\n}\n\nreturn out;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1104,
+        4688
+      ],
+      "id": "eab9dcc7-072f-43f6-831f-8f946125daff",
+      "name": "BuildMap2"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7c75946f-9dea-4e54-9a5b-60cc6c0cac2f",
+              "name": "Id",
+              "value": "={{ $('If5').item.json.Id }}",
+              "type": "string"
+            },
+            {
+              "id": "2a278ebd-bb29-472d-805d-bff0f5f67725",
+              "name": "Client_Id__c",
+              "value": "={{ $('If5').item.json.Client_Id__c }}",
+              "type": "number"
+            },
+            {
+              "id": "a808c87e-bf77-4b65-b610-72a1009c8d1d",
+              "name": "Company",
+              "value": "={{ $('If5').item.json.Company }}",
+              "type": "string"
+            },
+            {
+              "id": "78cefd84-aa6a-49bf-8d91-977ad9a2e263",
+              "name": "Name",
+              "value": "={{ $('If5').item.json.Name }}",
+              "type": "string"
+            },
+            {
+              "id": "d99f7239-16ea-4342-8c69-1fdac2187503",
+              "name": "Status",
+              "value": "={{ $('If5').item.json.Status }}",
+              "type": "string"
+            },
+            {
+              "id": "3543d52c-a425-44db-890f-8460b497b760",
+              "name": "Product Inquiry",
+              "value": "={{ $('If5').item.json.ProductInquiry }}",
+              "type": "string"
+            },
+            {
+              "id": "58f940df-7742-4d12-8bba-cfaa3befc254",
+              "name": "choices[0].message.content",
+              "value": "={{ $json.choices[0].message.content }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1904,
+        4736
+      ],
+      "id": "a27ca5cf-f8bf-4077-b2a7-3e4b95c937ac",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "jsCode": "// === LLM Parsing & Mapping Code Node (Clean Output with Lead ID + Proper Email) ===\n\nconst IST_OFFSET_MIN = 330; // +05:30 IST\n\n// ---------- Utilities ----------\nfunction toISOStringWithTz(date, tzMinutesOffset) {\n  const pad = (n) => String(Math.floor(Math.abs(n))).padStart(2, '0');\n  const local = new Date(date.getTime() + tzMinutesOffset * 60 * 1000);\n  const year = local.getUTCFullYear();\n  const month = pad(local.getUTCMonth() + 1);\n  const day = pad(local.getUTCDate());\n  const hours = pad(local.getUTCHours());\n  const minutes = pad(local.getUTCMinutes());\n  const seconds = pad(local.getUTCSeconds());\n  const sign = tzMinutesOffset >= 0 ? '+' : '-';\n  const offH = pad(Math.trunc(Math.abs(tzMinutesOffset) / 60));\n  const offM = pad(Math.abs(tzMinutesOffset) % 60);\n  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}${sign}${offH}:${offM}`;\n}\n\nfunction formatReadableIST(isoWithOffset) {\n  const [datePart, timeAndOffset] = isoWithOffset.split('T');\n  const time = timeAndOffset.slice(0, 8);\n  const offset = timeAndOffset.slice(8);\n  return `${datePart} ${time} IST (${offset})`;\n}\n\nfunction safeParseJson(s) {\n  if (typeof s === 'object' && s !== null) return s;\n  if (typeof s !== 'string') return null;\n  let t = s.trim();\n  if (t.startsWith('```')) {\n    t = t.replace(/^```(?:json)?/i, '').replace(/```$/, '');\n  }\n  try {\n    return JSON.parse(t);\n  } catch {\n    try {\n      const fixed = t.replace(/,\\s*([}$$])/g, '$1');\n      return JSON.parse(fixed);\n    } catch {\n      return null;\n    }\n  }\n}\n\nfunction capitalizeFirst(s) {\n  if (!s) return s;\n  const t = String(s).trim();\n  return t.charAt(0).toUpperCase() + t.slice(1);\n}\n\nfunction extractContent(j) {\n  if (Array.isArray(j.choices) && j.choices.length > 0 && j.choices[0].message?.content) {\n    return j.choices[0].message.content;\n  }\n  if (typeof j.content === 'string') return j.content;\n  if (typeof j.message === 'string') return j.message;\n  if (typeof j.result === 'string') return j.result;\n  if (typeof j.text === 'string') return j.text;\n  return null;\n}\n\n// ---------- Main Processing ----------\nconst items = $input.all();\nconst out = [];\n\nfor (let i = 0; i < items.length; i++) {\n  const j = items[i].json ?? {};\n\n  // --- Timestamp ---\n  let tsReadable = j.Timestamp__c || j.Timestamp;\n  if (!tsReadable) {\n    const isoIst = toISOStringWithTz(new Date(), IST_OFFSET_MIN);\n    tsReadable = formatReadableIST(isoIst);\n  }\n\n  // --- Extract & Parse LLM Output ---\n  const rawContent = extractContent(j);\n  const payload = (typeof rawContent === 'object' && rawContent !== null) \n    ? rawContent \n    : safeParseJson(rawContent);\n\n  // --- Recommendations ---\n  const recs = Array.isArray(payload?.recommendations) ? payload.recommendations : [];\n  const recsCap = recs.map(capitalizeFirst);\n  const productRecommended = recsCap.join(', ');\n\n  // --- Email Message (well-formatted) ---\n  const subj = typeof payload?.email_subject === 'string' ? payload.email_subject.trim() : null;\n  const body = typeof payload?.email_body === 'string' ? payload.email_body.trim() : null;\n  const name = j.Name || \"there\";\n\n  let emailMessageValue = \"\";\n\n  if (subj) {\n    emailMessageValue += `Subject: ${subj}\\n\\n`;\n  }\n\n  if (body) {\n    // Ensure greeting is present\n    if (!/^hi|hello/i.test(body)) {\n      emailMessageValue += `Hi ${name},\\n\\n`;\n    }\n    emailMessageValue += body;\n    if (!/best regards|thanks|sincerely/i.test(body.toLowerCase())) {\n      emailMessageValue += `\\n\\nBest regards,\\n\\n[Your Name]`;\n    }\n  } else {\n    emailMessageValue += `Hi ${name},\\n\\nI wanted to follow up regarding your inquiry.\\n\\nBest regards,\\n\\n[Your Name]`;\n  }\n\n  // --- Lead ID Handling ---\n  const leadId = j.LeadID || j.Lead_ID__c || j.Id || j.ID || null;\n\n  // --- Build Clean Output ---\n  const result = {\n    LeadID: leadId,\n    Client_Id__c: j.Client_Id__c,\n    Name: j.Name,\n    Email: j.Email,\n    Company: j.Company,\n    \"Product Inquiry\": j[\"Product Inquiry\"],\n    Status: \"Contacted\",\n    Product_Recommended__c: productRecommended,\n    Timestamp__c: tsReadable,\n    Email_Message__c: emailMessageValue,\n  };\n\n  out.push({\n    json: result,\n    pairedItem: { item: i },\n  });\n}\n\nreturn out;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2096,
+        4736
+      ],
+      "id": "840a5e29-a94b-4562-96bb-15611d8f2a16",
+      "name": "Parse LLM Output1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "1293f28b-9927-4d96-9b76-8a7a8c527156",
+              "leftValue": "={{ $json.Status }}",
+              "rightValue": "New",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1280,
+        4688
+      ],
+      "id": "18564109-6a8a-4824-b140-89e983cb009a",
+      "name": "If5"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "limit": 100,
+        "options": {
+          "fields": "ID, Client_Id__c, Company, Name, Email, Product_Inquiry__c, Status"
+        }
+      },
+      "type": "n8n-nodes-base.salesforce",
+      "typeVersion": 1,
+      "position": [
+        688,
+        4624
+      ],
+      "id": "52769065-e98e-4224-a77a-ee7192bfa253",
+      "name": "Get many leads",
+      "credentials": {
+        "salesforceOAuth2Api": {
+          "id": "KoZCB5WPo7sGMVF9",
+          "name": "Salesforce account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "leadId": "={{ $json.LeadID }}",
+        "updateFields": {
+          "customFieldsUi": {
+            "customFieldsValues": [
+              {
+                "fieldId": "Email_Message__c",
+                "value": "={{ $json.Email_Message__c }}"
+              },
+              {
+                "fieldId": "Product_Recommended__c",
+                "value": "={{ $json.Product_Recommended__c }}"
+              },
+              {
+                "fieldId": "Timestamp__c",
+                "value": "={{ $json.Timestamp__c }}"
+              }
+            ]
+          },
+          "status": "Contacted"
+        }
+      },
+      "type": "n8n-nodes-base.salesforce",
+      "typeVersion": 1,
+      "position": [
+        1744,
+        4560
+      ],
+      "id": "4bba3e61-e6be-4a38-8f08-3ae92ff2c22c",
+      "name": "Update a lead",
+      "credentials": {
+        "salesforceOAuth2Api": {
+          "id": "KoZCB5WPo7sGMVF9",
+          "name": "Salesforce account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1520,
+        4672
+      ],
+      "id": "d25cda0f-6564-42e6-b8aa-cf691fa5b03d",
+      "name": "Loop Over Items3"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        464,
+        4704
+      ],
+      "id": "ee4383e6-be79-402e-8f07-393e787c979b",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        560,
+        3824
+      ],
+      "id": "4690c29f-94db-42e2-9ecc-6a3af138112c",
+      "name": "Schedule Trigger"
+    }
+  ],
+  "connections": {
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "BuildMap",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript3": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "BuildMap": {
+      "main": [
+        [
+          {
+            "node": "MatchPerRow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MatchPerRow": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Output": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Format Output",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet2": {
+      "main": [
+        [
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet3": {
+      "main": [
+        [
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge2": {
+      "main": [
+        [
+          {
+            "node": "BuildMap1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append or update row in sheet2": {
+      "main": [
+        []
+      ]
+    },
+    "BuildMap1": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Parse LLM Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse LLM Output": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items2": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Message a model1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet5": {
+      "main": [
+        [
+          {
+            "node": "Merge3",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge3": {
+      "main": [
+        [
+          {
+            "node": "BuildMap2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model2": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "BuildMap2": {
+      "main": [
+        [
+          {
+            "node": "If5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "Parse LLM Output1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse LLM Output1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If5": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many leads": {
+      "main": [
+        [
+          {
+            "node": "Merge3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items3": {
+      "main": [
+        [
+          {
+            "node": "Update a lead",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Message a model2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get many leads",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get row(s) in sheet5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get row(s) in sheet3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "bfcd6787278013c4297eab9e02ba1b471bfeb33559859e03b602b2c606ee76d9"
+  }
+}
