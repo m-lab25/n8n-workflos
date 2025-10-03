@@ -1,0 +1,1576 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1ynj56-BrW2mugvpC7H7D-DVuFVIkGCQ9gO03t8Bi1h4",
+          "mode": "list",
+          "cachedResultName": "industries_deduped",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ynj56-BrW2mugvpC7H7D-DVuFVIkGCQ9gO03t8Bi1h4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 282482400,
+          "mode": "list",
+          "cachedResultName": "Supply_Chain",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ynj56-BrW2mugvpC7H7D-DVuFVIkGCQ9gO03t8Bi1h4/edit#gid=282482400"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        5456,
+        2528
+      ],
+      "id": "094da349-d554-4c41-909d-6de4d707f613",
+      "name": "Get row(s) in sheet4",
+      "executeOnce": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "1qcHqtrCUGMdXVXH",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "folderId": "15bZ5C9cGR8eVtnvRqrLMB3wmUZwTeUX_",
+        "title": "={{ $('Get markdown data').item.json.Id }}"
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        6544,
+        2400
+      ],
+      "id": "0f392a97-6a08-42b6-ba70-969d46c25490",
+      "name": "Create a document",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "TcRbIVKFILKv4cGP",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "={{ $json.id }}",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "insert",
+              "text": "={{ $('Pass output').item.json.markdown }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        6736,
+        2400
+      ],
+      "id": "339bb527-0e6d-4487-9abb-b0d830b364e6",
+      "name": "Update a document",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "TcRbIVKFILKv4cGP",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Subindustry Web pages formatting",
+        "height": 256,
+        "width": 800,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        5200,
+        2448
+      ],
+      "id": "cf35c762-11bc-4cf0-9182-1b8b297d27f9",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "jsCode": "// This Code node takes the input JSON and converts it into a string\n// Then passes it forward for the next node\n\nreturn items.map(item => {\n  return {\n    json: {\n      rawJson: JSON.stringify(item.json)  // 👈 Converts to string\n    }\n  }\n})\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        6432,
+        2704
+      ],
+      "id": "2526f969-9231-4e88-9ca6-99b93a0923f4",
+      "name": "Convert into String"
+    },
+    {
+      "parameters": {
+        "messages": {
+          "message": [
+            {
+              "content": "=You are an expert AI content writer specialized in creating professional, client-facing Sub-Industry Reports. Produce machine-ready, conversion-focused, and SEO/RAG-friendly pages from structured JSON input.\n\nPrimary task\n\nRead the structured input JSON (see expected schema below).\n\nGenerate a complete Sub-Industry Page in clean Markdown that strictly follows the 19-section blueprint described below.\n\nAlso generate a concise, professional image-generation prompt for a hero banner.\n\nReturn a single JSON object with exactly two keys:\n\n{\n  \"markdown\": \"...\",        // full page Markdown, no surrounding code fences\n  \"image_prompt\": \"...\"     // concise prompt to pass to an image model\n}\n\n\nInput JSON schema (fields your output must use)\n\nIndustry (string) — e.g., \"Transportation\"{{ $('If6').item.json.Industry }}\n\nSubIndustry (string) — e.g., \"Autonomous Vehicles\" {{ $('If6').item.json.Subindustry }}\n\nTitle (optional string) — override H1 if present {{ $('If6').item.json.Title_Of_AI_Use_Case }}\nProblem (string) — the core problem statement to emphasize\n\nAI_Approach (string) — short summary (Agentic / Generative / Predictive / CV / RL / Hybrid)\n\nData (object) — keys: sources (array of strings), key_tables (array), volume (string), frequency (string)\n\nKPIs (array of objects) — each: { \"name\": string, \"before\": string, \"after\": string }\n\nReferences (optional array of source URLs or citations){{ $('If6').item.json.References }}\n\nExamples (optional array) — short examples, case snippets, or notable vendors\n\nTone (optional string) — e.g., \"executive\", \"technical\", \"marketing\" (default: executive)\n\nOutput rules (non-negotiable)\n\nStructure — Output must include all 19 sections in this exact order. Do NOT change headings order or rename sections. However, do NOT include the literal labels Eyebrow + Breadcrumbs, H1, or Hero in the page text — render them as content only (see section rules below).\n\nFormatting — Output markdown must be a single Markdown string. Do not wrap it in code fences. Use standard Markdown headings (### / #### / #) where appropriate.\n\nFreshness — Insert a Last updated: {current date} line in the Executive Summary. Use the current date (ISO or readable; e.g., \"October 3, 2025\").\n\nReferences — Always include the References provided in input JSON. Additionally, synthesize 4–6 additional credible source citations relevant to the sub-industry & AI context (label them and provide URLs where possible). If web access is unavailable, include clearly stated, plausible source names and publication year (e.g., \"World Economic Forum, 2024\").\n\nImage Prompt — image_prompt must be:\n\nOne short paragraph (20–35 words).\n\nDescribe composition (what is shown), style (modern, minimal, professional), color palette suggestions, and mood.\n\nAvoid brand names or copyrighted logos.\n\nReady to send to a Gemini-like image model.\n\nNo extra keys — Only return the markdown and image_prompt keys. Do not add debug or meta fields.\n\nFill defaults — If input lacks data, populate sensible, concise defaults tailored to the provided SubIndustry.\n\nMachine-readability — Where useful include small machine-readable tables (Markdown tables) and checklists; use short factual bullets for quick parsing.\n\nNo hallucinated facts — Do not invent unverifiable metrics. If a stat is speculative, label it as \"estimate\" or \"typical\".\n\nNo commentary — Do not include any explanation about how you generated the page or any system-level commentary. Only produce the JSON result.\n\n19-Section Blueprint (how to render each section — exact order)\n\n1. Eyebrow + Breadcrumbs\n\nRender as a single line eyebrow: Applied AI for [Industry]\n\nThen breadcrumbs: Home → Industries → [Industry] → [SubIndustry]\n\n2. H1\n\nIf Title exists use it; otherwise:\n# AI in [SubIndustry]: Challenges, Trends, and High-ROI Use Cases (2025 Guide)\n\n3. Executive Scanner (replace previous “Hero” label)\n\n1–2 sentence executive value statement about AI impact.\n\nPresent exactly 3 KPI cards as short bullets or a 3-column Markdown table — each card: KPI name + short before/after or percent improvement drawn from KPIs input or sensible defaults.\n\nPrimary CTA and Secondary CTA as links: [Fix My AI Transformation](#) and [Get the Free Applied AI Kit](#)\n\n4. Executive Summary\n\n4–6 bullets: market context, regulation, cost/quality pressures, where AI moves the needle.\n\nInclude: Last updated: {today}\n\n5. What is [Sub-Industry]\n\n2–3 concise paragraphs: definition, scope, where it sits in the value chain. Mention 1–2 adjacent sub-industries with internal link-style anchors like [Electric Vehicles](#).\n\n6. Unique Challenges\n\n4–8 grouped bullets by theme (e.g., Data, Ops, Compliance, Tech debt). Be concrete.\n\n7. Current Trends\n\n5–7 trend cards each with: Trend label → What’s changing → Why now → 1 data point with a source (use input references when applicable). Include a placeholder for a mini-chart: ![sparkline-placeholder](#).\n\n8. Data Landscape\n\nSystems map bullet list (ERP/MES/PLM/CRM/SCM/IoT).\n\nData quality realities, key tables/entities, typical volumes/frequency.\n\nA checklist: “What data you need for AI use cases”.\n\n9. AI Opportunities & Use Cases\n\nPresent a filterable-grid style as a Markdown table. Each use-case row must include columns: Use Case | Problem | AI Approach | Data Required | HITL | KPIs (before→after) | Complexity | Time-to-Value | Risks | Integration | Starter→Factory→Scale.\n\n10. Deep Dive\n\n2–3 featured use cases with: narrative, architecture pipeline (ingest → enrich → model → agent → HITL → action), before/after KPI table, \"What it takes\" (skills & data readiness), and basic ROI inputs.\n\n11. Implementation Blueprint\n\nCrawl → Walk → Run with clear deliverables, timelines, and where Bootcamp / AI Factory fit.\n\n12. Risks & Governance\n\nPractical mitigations for privacy, PII/PHI, IP, audit trails, model governance, bias, and DR.\n\n13. Case Studies\n\nAt least 2: one anonymized (Situation → Action → Results) + one real example if provided in input.\n\n14. FAQ\n\n8–12 exec-style questions and concise answers, written for search intent.\n\n15. Glossary\n\n12–25 terms (AI, data, and sub-industry specific).\n\n16. Related Pages\n\n4–6 internal links to adjacent sub-industries, roles, or methodologies.\n\n17. CTA Block\n\nThree buttons/links: Fix My AI Transformation, Book an AI Bootcamp, Get the Applied AI Kit.\n\n18. Author / E-E-A-T\n\nNamed expert author line, short credentials, and editorial review stamp. Use input Examples or populate a default author and credible credentials.\n\n19. References\n\nList input References first. Then add 4–6 additional relevant sources (real or clearly labeled as suggested resources). Use full URLs where possible.",
+              "role": "system"
+            },
+            {
+              "content": "=Structured Input Data:\n{{ $json.rawJson }}\n\nPlease generate the Sub-Industry Page using the system prompt instructions above and the exact 19-section blueprint. Return a single JSON object (no code fences) with two fields:\n\n\"markdown\" — the entire page in clean Markdown following the blueprint and output rules.\n\n\"image_prompt\" — a single concise image-generation prompt (20–35 words) for a hero banner.\n\nAdditional image guidance:\n\nThe image_prompt should describe: primary composition (e.g., abstract AI brain interacting with industry objects), perspective (banner / horizontal), style (modern, minimalist, geometric), color palette (e.g., cool blues, charcoal, accent neon), and mood (professional, innovative).\n\nDo not include brand names, logos, or trademarked characters.\n\nKeep it model-ready (no extraneous instructions like \"do not include\").\n\nImage generation role (if you are also used to render the Markdown visually):\n\nIf instructed to render the Markdown to an image, do not hallucinate extra elements. Render exactly what the Markdown contains into a clean, neutral-background hero banner layout. Keep typography legible and spacing balanced.\n\nFinal note:\n\nIf any input fields are missing, fill with concise, sensible defaults tailored to the SubIndustry.\n\nProduce the JSON exactly as specified. Do not add ancillary debug fields or commentary."
+            }
+          ]
+        },
+        "options": {},
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.perplexity",
+      "typeVersion": 1,
+      "position": [
+        6624,
+        2704
+      ],
+      "id": "3b3d0f59-b4e4-4551-b2ba-eef4e70b1ea0",
+      "name": "Generate data",
+      "credentials": {
+        "perplexityApi": {
+          "id": "vXSrsyszHbgAPmaA",
+          "name": "Perplexity account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Initialize an array for results\nconst results = [];\n\nfunction safeParse(content) {\n  let c = content.trim();\n\n  // Strip code fences like ```json ... ```\n  c = c.replace(/^```[a-zA-Z]*\\s*/, \"\").replace(/```$/, \"\").trim();\n\n  // If it starts with \"json\\n\" or \"json \", remove that label\n  if (c.toLowerCase().startsWith(\"json\")) {\n    c = c.replace(/^json\\s*/i, \"\");\n  }\n\n  let parsed;\n  try {\n    parsed = JSON.parse(c);\n  } catch (err) {\n    // Try to fix broken JSON by escaping unescaped quotes inside values\n    let fixed = c\n      // replace line breaks inside strings with space\n      .replace(/\\n/g, \" \")\n      // escape unescaped double quotes inside values\n      .replace(/:\\s*\"([^\"]*?)\"([^,\\}\\]])/g, (m, g1, g2) => {\n        return `: \"${g1.replace(/\"/g, '\\\\\"')}\"${g2}`;\n      });\n\n    try {\n      parsed = JSON.parse(fixed);\n    } catch (err2) {\n      // Sometimes the LLM double-stringifies JSON -> try parsing twice\n      try {\n        parsed = JSON.parse(JSON.parse(c));\n      } catch (err3) {\n        // Fallback: force-wrap into valid object\n        parsed = { markdown: c, image_prompt: \"\" };\n      }\n    }\n  }\n\n  // Normalize parsed output: ensure both keys exist\n  return {\n    markdown: (parsed.markdown || \"\").toString().trim(),\n    image_prompt: (parsed.image_prompt || \"\").toString().trim()\n  };\n}\n\nfor (const item of $input.all()) {\n  let rawContent = item.json.completion || item.json.output || item.json?.choices?.[0]?.message?.content;\n  if (!rawContent) continue;\n\n  const parsed = safeParse(rawContent);\n\n  // Clean markdown in case it still has code fences\n  const cleanedMarkdown = parsed.markdown\n    .replace(/^```(markdown)?/gm, \"\")\n    .replace(/```$/gm, \"\")\n    .trim();\n\n  results.push({\n    json: {\n      markdown: cleanedMarkdown,\n      image_prompt: parsed.image_prompt\n    }\n  });\n}\n\nreturn results;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        6816,
+        2704
+      ],
+      "id": "f80d4aee-f6f8-4f74-9d65-c9927c6f4a83",
+      "name": "Pass output"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "29e449dc-ff88-4c62-a75c-0a85363228b9",
+              "leftValue": "={{ $json['Markdown format Word Doc Created'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "c72e23be-7351-4e53-9da4-9acbb76131e3",
+              "leftValue": "={{ $json['Markdown File Generated '] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "b6243771-c5d9-4ddd-8a51-d0e4522d8e09",
+              "leftValue": "={{ $json['Image Generated'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        5648,
+        2528
+      ],
+      "id": "6674a962-87d9-4bda-a8de-ed2d0ab65151",
+      "name": "If6"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        5264,
+        2528
+      ],
+      "id": "2923a13f-f2bc-48cb-be23-9dcf7ace6103",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "name": "={{ $('Get row(s) in sheet4').item.json.Id }}.md",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "12nlWSGo_33Ss6PSd99em8ZEdxsML48Kb",
+          "mode": "list",
+          "cachedResultName": "n8n_Markdown_format_subindustry_web_pages_spearhead",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/12nlWSGo_33Ss6PSd99em8ZEdxsML48Kb"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        6704,
+        2112
+      ],
+      "id": "360de355-cb11-41e2-a67b-35ff903d0655",
+      "name": "Upload file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "tkEq58UajlOzxAr7",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        5888,
+        2512
+      ],
+      "id": "2d2ca634-d3e5-4a14-b011-eeb1639d3e7c",
+      "name": "Loop Over Items4"
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        7232,
+        2944
+      ],
+      "id": "689204d2-31c7-49e0-9847-b687b0d3fcf5",
+      "name": "Wait",
+      "webhookId": "dca469da-9e08-42ac-a410-809d526cffa0"
+    },
+    {
+      "parameters": {
+        "content": "## Storing the output in Markdown Format",
+        "height": 240,
+        "width": 624
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        6464,
+        2032
+      ],
+      "id": "957953bd-f45d-4786-a823-5dc8bb938622",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "content": "## Storing the Output in Google doc in Markdown format",
+        "height": 240,
+        "width": 640,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        6480,
+        2320
+      ],
+      "id": "d12d0ea8-e2e2-4280-afe9-ad5b247dff79",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "content": "## Generating Image and Output",
+        "height": 528,
+        "width": 1040,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        6352,
+        2624
+      ],
+      "id": "e4920b1a-5ec1-4045-ab9b-fb27e977b912",
+      "name": "Sticky Note8"
+    },
+    {
+      "parameters": {
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1AHA3gltqWVho7AnjJ0rhWpVhouIxcjDg",
+          "mode": "list",
+          "cachedResultName": "n8n_Images_Subindustry_web_pages_Spearhead",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1AHA3gltqWVho7AnjJ0rhWpVhouIxcjDg"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        6624,
+        2944
+      ],
+      "id": "be7fbd5e-9c72-423a-b1f6-8d896a7b8f4b",
+      "name": "Upload Images",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "tkEq58UajlOzxAr7",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "base",
+        "binaryPropertyName": "=data",
+        "options": {
+          "fileName": "={{ $json.Filename }}"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        6432,
+        2944
+      ],
+      "id": "4234d169-6865-4fb0-b868-6f1f4c9e5d42",
+      "name": "Convert Images"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "632f692b-99a1-4e77-9a3e-1b187a70d662",
+              "name": "data",
+              "value": "={{ $json.choices[0].message.images[0].image_url.url }}",
+              "type": "string"
+            },
+            {
+              "id": "677cdf36-1f13-4f35-b5e1-b394cfa22aee",
+              "name": "base",
+              "value": "={{ $json.choices[0].message.images[0].image_url.url.split(\",\")[1] }}",
+              "type": "string"
+            },
+            {
+              "id": "5abdd567-9281-47ae-8d57-b46415871230",
+              "name": "Filename",
+              "value": "={{ $('If6').item.json.Id }}.png",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        7200,
+        2704
+      ],
+      "id": "b6e81a78-96ee-49fb-8ef5-e2fac9936165",
+      "name": "Set base for conversion"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openRouterApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"google/gemini-2.5-flash-image-preview\",\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": [\n        {\n          \"type\": \"text\",\n          \"text\": \"{{ $json.image_prompt }}\"\n        }\n      ]\n    }\n  ]\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        7008,
+        2704
+      ],
+      "id": "ddaddeca-3c28-4277-b6f1-66a5623bc2a5",
+      "name": "Generate Image",
+      "credentials": {
+        "openRouterApi": {
+          "id": "hBxg1bDTY2qsd1PS",
+          "name": "OpenRouter account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e89e50a3-dadf-46a9-81f1-04ae1237fa34",
+              "name": "markdown",
+              "value": "={{ $('Pass output').item.json.markdown }}",
+              "type": "string"
+            },
+            {
+              "id": "f19e8e1b-9d72-428e-b6fd-eeae85237902",
+              "name": "Id",
+              "value": "={{ $('If6').item.json.Id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        7040,
+        2944
+      ],
+      "id": "2936a233-86eb-453f-8d6c-cfa3ac9c69b4",
+      "name": "Get markdown data"
+    },
+    {
+      "parameters": {
+        "operation": "toText",
+        "sourceProperty": "markdown",
+        "options": {
+          "fileName": "={{ $('Get markdown data').item.json.Id }}.md"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        6496,
+        2112
+      ],
+      "id": "04f98f43-bcd6-4cd8-ad03-e0d9287e7e45",
+      "name": "Convert to Markdown"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1ynj56-BrW2mugvpC7H7D-DVuFVIkGCQ9gO03t8Bi1h4",
+          "mode": "list",
+          "cachedResultName": "industries_deduped",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ynj56-BrW2mugvpC7H7D-DVuFVIkGCQ9gO03t8Bi1h4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 282482400,
+          "mode": "list",
+          "cachedResultName": "Supply_Chain",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ynj56-BrW2mugvpC7H7D-DVuFVIkGCQ9gO03t8Bi1h4/edit#gid=282482400"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Id": "={{ $('If6').item.json.Id }}",
+            "Markdown format Word Doc Created": "Yes"
+          },
+          "matchingColumns": [
+            "Id"
+          ],
+          "schema": [
+            {
+              "id": "Id",
+              "displayName": "Id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Industry",
+              "displayName": "Industry",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Subindustry",
+              "displayName": "Subindustry",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Business_Function",
+              "displayName": "Business_Function",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Business_Capability",
+              "displayName": "Business_Capability",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Stakeholder_Or_User",
+              "displayName": "Stakeholder_Or_User",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Title_Of_AI_Use_Case",
+              "displayName": "Title_Of_AI_Use_Case",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Description",
+              "displayName": "Description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Impact",
+              "displayName": "Impact",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Action_Implementation_Plan",
+              "displayName": "Action_Implementation_Plan",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Expected_Outcomes_And_Results",
+              "displayName": "Expected_Outcomes_And_Results",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Datasets",
+              "displayName": "Datasets",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "AI_Capabilities_And_Tech",
+              "displayName": "AI_Capabilities_And_Tech",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Digital_Platforms_And_Tools",
+              "displayName": "Digital_Platforms_And_Tools",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "AI_Algo_And_Frameworks",
+              "displayName": "AI_Algo_And_Frameworks",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Tools_And_Models",
+              "displayName": "Tools_And_Models",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "References",
+              "displayName": "References",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Other_References",
+              "displayName": "Other_References",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "combined_text",
+              "displayName": "combined_text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "__merged__",
+              "displayName": "__merged__",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Markdown format Word Doc Created",
+              "displayName": "Markdown format Word Doc Created",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Markdown File Generated ",
+              "displayName": "Markdown File Generated ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Image Generated",
+              "displayName": "Image Generated",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Completed",
+              "displayName": "Completed",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        6944,
+        2400
+      ],
+      "id": "7f0a2885-29fa-4420-9b93-d10a6eaff375",
+      "name": "Update, doc created",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "1qcHqtrCUGMdXVXH",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1ynj56-BrW2mugvpC7H7D-DVuFVIkGCQ9gO03t8Bi1h4",
+          "mode": "list",
+          "cachedResultName": "industries_deduped",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ynj56-BrW2mugvpC7H7D-DVuFVIkGCQ9gO03t8Bi1h4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 282482400,
+          "mode": "list",
+          "cachedResultName": "Supply_Chain",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ynj56-BrW2mugvpC7H7D-DVuFVIkGCQ9gO03t8Bi1h4/edit#gid=282482400"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Markdown File Generated ": "Yes",
+            "Id": "={{ $('If6').item.json.Id }}"
+          },
+          "matchingColumns": [
+            "Id"
+          ],
+          "schema": [
+            {
+              "id": "Id",
+              "displayName": "Id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Industry",
+              "displayName": "Industry",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Subindustry",
+              "displayName": "Subindustry",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Business_Function",
+              "displayName": "Business_Function",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Business_Capability",
+              "displayName": "Business_Capability",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Stakeholder_Or_User",
+              "displayName": "Stakeholder_Or_User",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Title_Of_AI_Use_Case",
+              "displayName": "Title_Of_AI_Use_Case",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Description",
+              "displayName": "Description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Impact",
+              "displayName": "Impact",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Action_Implementation_Plan",
+              "displayName": "Action_Implementation_Plan",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Expected_Outcomes_And_Results",
+              "displayName": "Expected_Outcomes_And_Results",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Datasets",
+              "displayName": "Datasets",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "AI_Capabilities_And_Tech",
+              "displayName": "AI_Capabilities_And_Tech",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Digital_Platforms_And_Tools",
+              "displayName": "Digital_Platforms_And_Tools",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "AI_Algo_And_Frameworks",
+              "displayName": "AI_Algo_And_Frameworks",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Tools_And_Models",
+              "displayName": "Tools_And_Models",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "References",
+              "displayName": "References",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Other_References",
+              "displayName": "Other_References",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "combined_text",
+              "displayName": "combined_text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "__merged__",
+              "displayName": "__merged__",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Markdown format Word Doc Created",
+              "displayName": "Markdown format Word Doc Created",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Markdown File Generated ",
+              "displayName": "Markdown File Generated ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Image Generated",
+              "displayName": "Image Generated",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Completed",
+              "displayName": "Completed",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        6928,
+        2112
+      ],
+      "id": "4a4cac6c-4c7c-49ba-a099-905f1cfdd140",
+      "name": "Update, markdown created",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "1qcHqtrCUGMdXVXH",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1ynj56-BrW2mugvpC7H7D-DVuFVIkGCQ9gO03t8Bi1h4",
+          "mode": "list",
+          "cachedResultName": "industries_deduped",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ynj56-BrW2mugvpC7H7D-DVuFVIkGCQ9gO03t8Bi1h4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 282482400,
+          "mode": "list",
+          "cachedResultName": "Supply_Chain",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ynj56-BrW2mugvpC7H7D-DVuFVIkGCQ9gO03t8Bi1h4/edit#gid=282482400"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Image Generated": "Yes",
+            "Id": "={{ $('If6').item.json.Id }}"
+          },
+          "matchingColumns": [
+            "Id"
+          ],
+          "schema": [
+            {
+              "id": "Id",
+              "displayName": "Id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Industry",
+              "displayName": "Industry",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Subindustry",
+              "displayName": "Subindustry",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Business_Function",
+              "displayName": "Business_Function",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Business_Capability",
+              "displayName": "Business_Capability",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Stakeholder_Or_User",
+              "displayName": "Stakeholder_Or_User",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Title_Of_AI_Use_Case",
+              "displayName": "Title_Of_AI_Use_Case",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Description",
+              "displayName": "Description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Impact",
+              "displayName": "Impact",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Action_Implementation_Plan",
+              "displayName": "Action_Implementation_Plan",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Expected_Outcomes_And_Results",
+              "displayName": "Expected_Outcomes_And_Results",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Datasets",
+              "displayName": "Datasets",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "AI_Capabilities_And_Tech",
+              "displayName": "AI_Capabilities_And_Tech",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Digital_Platforms_And_Tools",
+              "displayName": "Digital_Platforms_And_Tools",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "AI_Algo_And_Frameworks",
+              "displayName": "AI_Algo_And_Frameworks",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Tools_And_Models",
+              "displayName": "Tools_And_Models",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "References",
+              "displayName": "References",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Other_References",
+              "displayName": "Other_References",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "combined_text",
+              "displayName": "combined_text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "__merged__",
+              "displayName": "__merged__",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Markdown format Word Doc Created",
+              "displayName": "Markdown format Word Doc Created",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Markdown File Generated ",
+              "displayName": "Markdown File Generated ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Image Generated",
+              "displayName": "Image Generated",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Completed",
+              "displayName": "Completed",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        6832,
+        2944
+      ],
+      "id": "2833e3bb-ef54-4221-adc5-69541c7d65de",
+      "name": "Update image created",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "1qcHqtrCUGMdXVXH",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Get row(s) in sheet4": {
+      "main": [
+        [
+          {
+            "node": "If6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a document": {
+      "main": [
+        [
+          {
+            "node": "Update a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a document": {
+      "main": [
+        [
+          {
+            "node": "Update, doc created",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert into String": {
+      "main": [
+        [
+          {
+            "node": "Generate data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate data": {
+      "main": [
+        [
+          {
+            "node": "Pass output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pass output": {
+      "main": [
+        [
+          {
+            "node": "Generate Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If6": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload file": {
+      "main": [
+        [
+          {
+            "node": "Update, markdown created",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items4": {
+      "main": [
+        [
+          {
+            "node": "Create a document",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Convert to Markdown",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Convert into String",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Images": {
+      "main": [
+        [
+          {
+            "node": "Update image created",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert Images": {
+      "main": [
+        [
+          {
+            "node": "Upload Images",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set base for conversion": {
+      "main": [
+        [
+          {
+            "node": "Convert Images",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Image": {
+      "main": [
+        [
+          {
+            "node": "Set base for conversion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get markdown data": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to Markdown": {
+      "main": [
+        [
+          {
+            "node": "Upload file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update image created": {
+      "main": [
+        [
+          {
+            "node": "Get markdown data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "instanceId": "93b04adf2b2bf87cd904cc9cc38d082bdcb3a22c3b6e1c384222ba3050aeaa51"
+  }
+}
