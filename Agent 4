@@ -1,0 +1,113 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "resource": "drive",
+        "operation": "get",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        160,
+        640
+      ],
+      "id": "913d674a-bd16-4309-92c0-b5153baa21af",
+      "name": "Get shared drive"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.myNewField = 1;\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        368,
+        640
+      ],
+      "id": "cbb8ef4b-e20b-4de2-81ef-842d0581b11a",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "messages": {
+          "values": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        560,
+        640
+      ],
+      "id": "f1be391d-5ee0-4ada-95fa-aa4914aa7e22",
+      "name": "Message a model1"
+    },
+    {
+      "parameters": {
+        "resource": "spreadsheet",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        880,
+        640
+      ],
+      "id": "e5c7a11c-43a4-4b6e-a5b4-5deea3d402d8",
+      "name": "Create spreadsheet"
+    }
+  ],
+  "connections": {
+    "Get shared drive": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "Message a model1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model1": {
+      "main": [
+        [
+          {
+            "node": "Create spreadsheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "instanceId": "889a177d21a3fddbce15c79babcf1c94ade5261fd35aa13bedf02e0e8ce5dfca"
+  }
+}
