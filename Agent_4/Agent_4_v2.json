@@ -359,7 +359,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n   \"assistantId\":\"2bd50500-855e-420a-9448-8e8d20e28b39\",\n   \"assistantOverrides\":{\n      \"variableValues\":{\n         \"name\":\"{{ $json.Name }}\"\n      }\n   },\n   \"customer\":{\n      \"number\":\"+91{{ $json.Number }}\"\n   },\n   \"phoneNumber\":{\n      \"twilioAccountSid\":\"ACdbe64599af77711a673d3c0b87ce3d0b\",\n      \"twilioAuthToken\":\"87563e4dda4eda48e69674df941e8e88\",\n      \"twilioPhoneNumber\":\"+15076903208\"\n   }\n}",
+        "jsonBody": "={\n   \"assistantId\":\"2bd50500-855e-420a-9448-8e8d20e28b39\",\n   \"assistantOverrides\":{\n      \"variableValues\":{\n         \"name\":\"{{ $json.Name }}\"\n      }\n   },\n   \"customer\":{\n      \"number\":\"+91{{ $json.Number }}\"\n   },\n   \"phoneNumber\":{\n      \"twilioAccountSid\":\"\",\n      \"twilioAuthToken\":\"\",\n      \"twilioPhoneNumber\":\"\"\n   }\n}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
