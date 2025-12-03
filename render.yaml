@@ -13,33 +13,7 @@ services:
       - key: DB_TYPE
         value: postgresdb
 
-      - key: DB_POSTGRESDB_DATABASE
-        value: defaultdb
-
-      - key: DB_POSTGRESDB_HOST
-        value: pg-258e06b0-ax-2686.k.aivencloud.com
-
-      - key: DB_POSTGRESDB_PORT
-        value: "24253"
-
-      - key: DB_POSTGRESDB_USER
-        value: avnadmin
-
-      - key: DB_POSTGRESDB_PASSWORD
-        value: YOUR_AIVEN_PASSWORD
-
-      - key: DB_POSTGRESDB_SSL_ENABLED
-        value: "true"
-
-      - key: DB_POSTGRESDB_SSL_CA
-        value: "YOUR_AIVEN_CA_CERT"
-
-      # optional but recommended
-      - key: DB_POSTGRESDB_SSL_REJECT_UNAUTHORIZED
-        value: "true"
-
-# No Render Postgres instance needed anymore, so this block can be removed
-#databases:
-#  - name: n8n-db
-#    plan: free
-#    # diskSizeGB: 5
+      # Use this one from the Render dashboard (recommended)
+      # or put value here temporarily if you’re OK with committing it
+      - key: DB_POSTGRESDB_CONNECTION_STRING
+        value: "value "
