@@ -1,0 +1,960 @@
+{
+  "name": "KPI",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "=https://sheets.googleapis.com/v4/spreadsheets/{{ $json.id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -544,
+        -48
+      ],
+      "id": "84df818d-4ab2-4d3d-83cf-5ca9f9b58566",
+      "name": "HTTPRequest8",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "5jKTTmgEtu7nHv9m",
+          "name": "Google Sheets account Omkar Lokhande"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Process all items and return only folderName with whitespace removed\nreturn $input.all().map(item => {\n  const name = item.json.name;\n  const underscoreIndex = name.indexOf('-');\n  \n  return {\n    json: {\n      id: item.json.id,\n      folderName: underscoreIndex !== -1 \n        ? name.substring(0, underscoreIndex).trim() \n        : name.trim()\n    }\n  };\n});\n\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -432,
+        160
+      ],
+      "id": "70ffeaad-3a09-40c4-96fa-fc3a6913f960",
+      "name": "Code in JavaScript15"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1yLnXK3gq5SKF4dr9u89f9d7AwKUwF0hPvWp1WYF7FoI/edit?gid=1255506520#gid=1255506520",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "={{ $('Combine Folder id with name').item.json.folderName }}",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Id": "={{ $('Combine Folder id with name').item.json.Id }}",
+            "KPI Generated": "Yes",
+            "KPI(primary)": "={{ $json[\"KPI(primary)\"] }}",
+            "KPI(secondary)": "={{ $json[\"KPI(secondary)\"] }}"
+          },
+          "matchingColumns": [
+            "Id"
+          ],
+          "schema": [
+            {
+              "id": "Id",
+              "displayName": "Id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Industry",
+              "displayName": "Industry",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Subindustry",
+              "displayName": "Subindustry",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Business_Function",
+              "displayName": "Business_Function",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Business_Capability",
+              "displayName": "Business_Capability",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Stakeholder_Or_User",
+              "displayName": "Stakeholder_Or_User",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Title_Of_AI_Use_Case",
+              "displayName": "Title_Of_AI_Use_Case",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Description",
+              "displayName": "Description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Impact",
+              "displayName": "Impact",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Action_Implementation_Plan",
+              "displayName": "Action_Implementation_Plan",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Expected_Outcomes_And_Results",
+              "displayName": "Expected_Outcomes_And_Results",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Datasets",
+              "displayName": "Datasets",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "AI_Capabilities_And_Tech",
+              "displayName": "AI_Capabilities_And_Tech",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Digital_Platforms_And_Tools",
+              "displayName": "Digital_Platforms_And_Tools",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "AI_Algo_And_Frameworks",
+              "displayName": "AI_Algo_And_Frameworks",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Tools_And_Models",
+              "displayName": "Tools_And_Models",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "References",
+              "displayName": "References",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Other_References",
+              "displayName": "Other_References",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "combined_text",
+              "displayName": "combined_text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "__merged__",
+              "displayName": "__merged__",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Markdown format Word Doc Created",
+              "displayName": "Markdown format Word Doc Created",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Markdown File Generated ",
+              "displayName": "Markdown File Generated ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Image Generated",
+              "displayName": "Image Generated",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Completed",
+              "displayName": "Completed",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Validation Status",
+              "displayName": "Validation Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "KPI Generated",
+              "displayName": "KPI Generated",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "KPI(primary)",
+              "displayName": "KPI(primary)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "KPI(secondary)",
+              "displayName": "KPI(secondary)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1600,
+        -48
+      ],
+      "id": "af53558d-a69c-4cd1-b46b-a58dc3c54823",
+      "name": "Update row in sheet4",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "5jKTTmgEtu7nHv9m",
+          "name": "Google Sheets account Omkar Lokhande"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1104,
+        48
+      ],
+      "id": "d08c7de9-f68b-4be3-bc7a-97b13f85bfe5",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "queryString": "Chatgpt_industries_deduped",
+        "filter": {
+          "driveId": {
+            "mode": "list",
+            "value": "My Drive"
+          },
+          "folderId": {
+            "__rl": true,
+            "value": "1t9gGPmWcZj8ku46RidjQjwXd5wMUpO9J",
+            "mode": "list",
+            "cachedResultName": "Subindustry_Web_pages_content",
+            "cachedResultUrl": "https://drive.google.com/drive/folders/1t9gGPmWcZj8ku46RidjQjwXd5wMUpO9J"
+          },
+          "whatToSearch": "files",
+          "fileTypes": [
+            "application/vnd.google-apps.spreadsheet"
+          ]
+        },
+        "options": {
+          "fields": [
+            "id"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -848,
+        -48
+      ],
+      "id": "6d3c3d9a-5a6b-4d7f-8ad7-b482a3461cc1",
+      "name": "Search Original sheet",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "sH7sMnSy8pnKPbWQ",
+          "name": "Google Drive account Omkar Lokhande"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {
+          "googleFileConversion": {
+            "conversion": {
+              "docsToFormat": "text/plain"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -688,
+        -48
+      ],
+      "id": "640ea277-c0bb-40f0-830c-fa21762b0b10",
+      "name": "Download Gsheet",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "sH7sMnSy8pnKPbWQ",
+          "name": "Google Drive account Omkar Lokhande"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the array returned by HTTP Request node\nconst httpData = $items(\"HTTPRequest8\")[0].json;\n\n// If it's an array (like your JSON), take the first object\nconst spreadsheet = Array.isArray(httpData) ? httpData[0] : httpData;\n\n// Safely extract the sheets\nconst sheets = spreadsheet.sheets || [];\n\nreturn sheets.map((sheet, index) => {\n  return {\n    json: {\n      sheetId: sheet.properties.sheetId,\n      sheetName: sheet.properties.title,\n    },\n    pairedItem: { item: index },\n  };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -400,
+        -48
+      ],
+      "id": "987a16f7-8682-4882-91fa-ea90e4091d4e",
+      "name": "Extract the sheets"
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "filter": {
+          "driveId": {
+            "mode": "list",
+            "value": "My Drive"
+          },
+          "folderId": {
+            "__rl": true,
+            "value": "1t9gGPmWcZj8ku46RidjQjwXd5wMUpO9J",
+            "mode": "list",
+            "cachedResultName": "Subindustry_Web_pages_content",
+            "cachedResultUrl": "https://drive.google.com/drive/folders/1t9gGPmWcZj8ku46RidjQjwXd5wMUpO9J"
+          },
+          "whatToSearch": "folders"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -848,
+        160
+      ],
+      "id": "9548b5db-369b-4abb-a0af-34d3c068efb8",
+      "name": "Get folders ids",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "sH7sMnSy8pnKPbWQ",
+          "name": "Google Drive account Omkar Lokhande"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0bed9c27-4332-4242-9ed7-171be6e583dd",
+              "name": "sheet_details",
+              "value": "={{ $('Extract the sheets').all()}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -224,
+        -48
+      ],
+      "id": "16731cad-bc50-4b17-b356-f475e24c5bb6",
+      "name": "Pass Gsheet data",
+      "alwaysOutputData": true,
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse the JSON string\nconst sheetDetailsString = $input.first().json.sheet_details;\nconst sheetDetailsArray = JSON.parse(sheetDetailsString);\n\n// Map each sheet detail to a separate item with proper structure\nreturn sheetDetailsArray.map(item => ({\n  json: {\n    sheetId: item.json.sheetId,\n    sheetName: item.json.sheetName\n  }\n}));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -48,
+        -48
+      ],
+      "id": "bf337e24-75d6-4442-8356-9ec54152f73d",
+      "name": "Pass Gsheet data1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        128,
+        -48
+      ],
+      "id": "3e1d5a01-6734-4ab7-9ce1-50d055583839",
+      "name": "Loop",
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1yLnXK3gq5SKF4dr9u89f9d7AwKUwF0hPvWp1WYF7FoI",
+          "mode": "list",
+          "cachedResultName": "Chatgpt_industries_deduped",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1yLnXK3gq5SKF4dr9u89f9d7AwKUwF0hPvWp1WYF7FoI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "={{ $('Pass Gsheet data1').item.json.sheetId }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        176,
+        224
+      ],
+      "id": "927e2d40-88b3-4907-99ec-46c3fef5c016",
+      "name": "Get all row(s) in sheets",
+      "executeOnce": false,
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "5jKTTmgEtu7nHv9m",
+          "name": "Google Sheets account Omkar Lokhande"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Simply return all items from the loop\nreturn $input.all().map(item => ({ json: item.json }));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        336,
+        -64
+      ],
+      "id": "478ac90b-4486-4421-a1ca-d8d56bc9320f",
+      "name": "Collect data from all industries",
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "621452b0-4364-43e8-a9df-14f5905b39d6",
+              "leftValue": "={{ $json[\"KPI Generated\"] }}",
+              "rightValue": "Yes",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        512,
+        -64
+      ],
+      "id": "4f46fba6-0223-4b23-9bf5-f77a92086b84",
+      "name": "If condition (Only forward data if rows are empty)",
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "advanced": true,
+        "mergeByFields": {
+          "values": [
+            {
+              "field1": "Industry",
+              "field2": "folderName"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        720,
+        -64
+      ],
+      "id": "05b8b1e2-9179-4f3b-9ab2-5f88b183fc5f",
+      "name": "Combine Folder id with name"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        976,
+        -64
+      ],
+      "id": "c77eda97-1db2-4211-be21-1d4c6756ba75",
+      "name": "Loop for 1st LLM"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse and format KPIs with clear headers and separators\nconst items = [];\n\nfor (const item of $input.all()) {\n  try {\n    // Handle different Perplexity/OpenAI response structures\n    let responseText =\n      item.json?.message ||                           // Perplexity-style\n      item.json?.choices?.[0]?.message?.content ||    // OpenAI-style\n      item.json?.response ||\n      item.json?.output ||\n      \"\";\n\n    if (!responseText) {\n      throw new Error(\"No response text found in API output\");\n    }\n\n    // Remove markdown code blocks: ```json ... ``` or ``` ... ```\n    responseText = responseText\n      .replace(/```json([\\s\\S]*?)```/gi, \"$1\")\n      .replace(/```([\\s\\S]*?)```/gi, \"$1\")\n      .trim();\n\n    // Additional cleanup\n    responseText = responseText.replace(/^\\s+|\\s+$/g, \"\");\n\n    // Parse JSON\n    const kpiData = JSON.parse(responseText);\n\n    // Validate required fields\n    if (!kpiData.use_case_id || !kpiData.primary_kpis) {\n      throw new Error(\"Missing required fields in parsed JSON\");\n    }\n\n    // Helper: Format KPIs\n    const formatKPIs = (kpis) => {\n      if (!kpis || kpis.length === 0) return \"No KPIs identified\";\n      return kpis\n        .map(\n          (kpi, index) =>\n            `KPI ${index + 1}: ${kpi.kpi}\\nWhy it matters: ${kpi.why_it_matters}`\n        )\n        .join(\"\\n---\\n\");\n    };\n\n    const primaryKPIs = formatKPIs(kpiData.primary_kpis);\n    const secondaryKPIs = formatKPIs(kpiData.secondary_kpis);\n\n    items.push({\n      json: {\n        use_case_id: kpiData.use_case_id,\n        use_case_name: kpiData.use_case_name,\n        domain: kpiData.domain,\n        \"KPI(primary)\": primaryKPIs,\n        \"KPI(secondary)\": secondaryKPIs,\n      },\n    });\n  } catch (error) {\n    // Enhanced error output\n    const rawMessage =\n      item.json?.message ||\n      item.json?.choices?.[0]?.message?.content ||\n      \"No message found\";\n\n    items.push({\n      json: {\n        error: true,\n        error_message: error.message,\n        error_type: error.name,\n        raw_response: item.json,\n        attempted_parse: rawMessage,\n        debug_keys: Object.keys(item.json || {}),\n      },\n    });\n  }\n}\n\nreturn items;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1376,
+        -48
+      ],
+      "id": "6c4d6171-9172-470f-8380-e42b4b7f9920",
+      "name": "Pass output"
+    },
+    {
+      "parameters": {
+        "messages": {
+          "message": [
+            {
+              "content": "=You are an AI KPI mapping specialist. Your role is to analyze enterprise AI use cases and identify industry-standard Key Performance Indicators (KPIs).\n\nFor each use case, you must:\n- Identify 2-3 Primary KPIs that directly measure business value and operational impact\n- Identify 1-2 Secondary KPIs that provide supporting insights\n- Select only universally recognized, industry-standard KPIs\n- Provide clear justification for each KPI selection\n\nCRITICAL: Return ONLY the raw JSON object. Do not wrap it in markdown code blocks (```\n\nAlways return your response as valid JSON using this exact structure:\n{\n  \"use_case_id\": \"\",\n  \"use_case_name\": \"\",\n  \"domain\": \"\",\n  \"primary_kpis\": [\n    { \"kpi\": \"\", \"why_it_matters\": \"\" }\n  ],\n  \"secondary_kpis\": [\n    { \"kpi\": \"\", \"why_it_matters\": \"\" }\n  ]\n}\n\nIndustry-standard KPIs by domain:\n- Support/CX: FCR, AHT, Ticket Deflection, CSAT, NPS, Escalation Rate\n- Sales: Win Rate, Sales Cycle Length, Pipeline Coverage, CAC, Conversion Rate\n- Supply Chain: OTIF, Inventory Turns, Forecast Accuracy, Lead Time\n- Finance: Days Sales Outstanding, Close Cycle Time, Processing Cost\n- HR: Time to Fill, Quality of Hire, Retention Rate, Employee Satisfaction\n- IT/Ops: MTTR, MTBF, Incident Volume, SLA Compliance\n- Marketing: CAC, ROAS, Conversion Rate, Lead Quality Score\n- Manufacturing: OEE, Yield Rate, Scrap Rate, Downtime\n\nReturn only the JSON object without markdown formatting or additional commentary.\n\n\n",
+              "role": "system"
+            },
+            {
+              "content": "=Analyze the following AI use case and map it to industry-standard KPIs:\n\nID: {{ $json[\"Id\"] }}\nDomain: {{ $json.Industry }}\nUse Case Name:{{ $json.Title_Of_AI_Use_Case }}\nStakeholders: {{ $json.Stakeholder_Or_User }}\nDescription: {{ $json.Description }}\nTechnologies: {{ $json.Tools_And_Models }}\n{{ $json.Digital_Platforms_And_Tools }}\n{{ $json.AI_Algo_And_Frameworks }}\nData Sources: {{ $json.References }}\n{{ $json.Other_References }}\nOutcomes: {{ $json.Expected_Outcomes_And_Results }}\n\nAnalyze this use case and return Primary KPIs (2-3) and Secondary KPIs (1-2) in the required JSON format."
+            }
+          ]
+        },
+        "simplify": true,
+        "options": {},
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.perplexity",
+      "typeVersion": 1,
+      "position": [
+        1200,
+        -48
+      ],
+      "id": "9de287bd-0461-49e6-a403-01a9a004bb77",
+      "name": "Message a model",
+      "credentials": {
+        "perplexityApi": {
+          "id": "pkTG1IL0tIMxipxw",
+          "name": "Spearhead"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "HTTPRequest8": {
+      "main": [
+        [
+          {
+            "node": "Extract the sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript15": {
+      "main": [
+        [
+          {
+            "node": "Combine Folder id with name",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Update row in sheet4": {
+      "main": [
+        [
+          {
+            "node": "Loop for 1st LLM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Search Original sheet",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get folders ids",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Original sheet": {
+      "main": [
+        [
+          {
+            "node": "Download Gsheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Gsheet": {
+      "main": [
+        [
+          {
+            "node": "HTTPRequest8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract the sheets": {
+      "main": [
+        [
+          {
+            "node": "Pass Gsheet data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get folders ids": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript15",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pass Gsheet data": {
+      "main": [
+        [
+          {
+            "node": "Pass Gsheet data1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pass Gsheet data1": {
+      "main": [
+        [
+          {
+            "node": "Loop",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop": {
+      "main": [
+        [
+          {
+            "node": "Collect data from all industries",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get all row(s) in sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get all row(s) in sheets": {
+      "main": [
+        [
+          {
+            "node": "Loop",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Collect data from all industries": {
+      "main": [
+        [
+          {
+            "node": "If condition (Only forward data if rows are empty)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If condition (Only forward data if rows are empty)": {
+      "main": [
+        [
+          {
+            "node": "Combine Folder id with name",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine Folder id with name": {
+      "main": [
+        [
+          {
+            "node": "Loop for 1st LLM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop for 1st LLM": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pass output": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Pass output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c1b850af-578e-46d1-bd7e-ba8574df4db1",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "889a177d21a3fddbce15c79babcf1c94ade5261fd35aa13bedf02e0e8ce5dfca"
+  },
+  "id": "xzUCVUMBXSkLO3n6",
+  "tags": []
+}
