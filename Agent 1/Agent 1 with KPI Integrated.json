@@ -1,0 +1,2693 @@
+{
+  "name": "Agent 1 with KPI Integrated",
+  "nodes": [
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "filter": {
+          "driveId": {
+            "mode": "list",
+            "value": "My Drive"
+          },
+          "folderId": {
+            "__rl": true,
+            "value": "1t9gGPmWcZj8ku46RidjQjwXd5wMUpO9J",
+            "mode": "list",
+            "cachedResultName": "Subindustry_Web_pages_content",
+            "cachedResultUrl": "https://drive.google.com/drive/folders/1t9gGPmWcZj8ku46RidjQjwXd5wMUpO9J"
+          },
+          "whatToSearch": "folders"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -2816,
+        496
+      ],
+      "id": "65d4a204-52fa-47bd-b250-a7e63606da23",
+      "name": "Search existing folders"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Process all items and return only folderName with whitespace removed\nreturn $input.all().map(item => {\n  const name = item.json.name;\n  const underscoreIndex = name.indexOf('-');\n  \n  return {\n    json: {\n      folderName: underscoreIndex !== -1 \n        ? name.substring(0, underscoreIndex).trim() \n        : name.trim()\n    }\n  };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2400,
+        496
+      ],
+      "id": "4a01cbca-4475-4ca7-8132-212bac679633",
+      "name": "Exiting folders names"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "advanced": true,
+        "mergeByFields": {
+          "values": [
+            {
+              "field1": "sheetName",
+              "field2": "folderName"
+            }
+          ]
+        },
+        "joinMode": "keepNonMatches",
+        "outputDataFrom": "input1",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -2128,
+        480
+      ],
+      "id": "43bd953e-03ad-437a-a1c5-09c5e40904cb",
+      "name": "Check if New industry is added",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "name": "={{ $json.sheetName }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1t9gGPmWcZj8ku46RidjQjwXd5wMUpO9J",
+          "mode": "list",
+          "cachedResultName": "Subindustry_Web_pages_content",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1t9gGPmWcZj8ku46RidjQjwXd5wMUpO9J"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -1920,
+        480
+      ],
+      "id": "b4f9a554-ecb8-4059-818e-bd706015eddb",
+      "name": "Create folder with new industry name",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -1680,
+        352
+      ],
+      "id": "d8258518-94b6-4fce-9c10-38e38a9045b6",
+      "name": "Merge data"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openRouterApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"google/gemini-2.5-flash-image-preview\",\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": [\n        {\n          \"type\": \"text\",\n          \"text\": \"{{ $json.image_prompt }}\"\n        }\n      ]\n    }\n  ]\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        576,
+        368
+      ],
+      "id": "811bbed9-d202-449b-a66d-1bf8fbd150b4",
+      "name": "Generate Image"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "632f692b-99a1-4e77-9a3e-1b187a70d662",
+              "name": "data",
+              "value": "={{ $json.choices[0].message.images[0].image_url.url }}",
+              "type": "string"
+            },
+            {
+              "id": "677cdf36-1f13-4f35-b5e1-b394cfa22aee",
+              "name": "base",
+              "value": "={{ $json.choices[0].message.images[0].image_url.url.split(\",\")[1] }}",
+              "type": "string"
+            },
+            {
+              "id": "5abdd567-9281-47ae-8d57-b46415871230",
+              "name": "Filename",
+              "value": "={{ $('Loop for 1st LLM1').item.json.Id }}.png",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        736,
+        368
+      ],
+      "id": "52efa90b-d4c9-4ea1-b32f-8a7307dcab7b",
+      "name": "Set base for conversion"
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "base",
+        "binaryPropertyName": "=data",
+        "options": {
+          "fileName": "={{ $json.Filename }}"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        928,
+        368
+      ],
+      "id": "14c27686-cba3-4afc-968c-e234bf009097",
+      "name": "Convert Images"
+    },
+    {
+      "parameters": {
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{ $('Combine Folder id with name1').item.json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1120,
+        368
+      ],
+      "id": "9ee1fd9c-0736-4341-8d75-1c0dff566223",
+      "name": "Upload Images"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        304,
+        1136
+      ],
+      "id": "407ff7aa-028e-42aa-b73b-94ec4b2055a4",
+      "name": "Loop for 2nd LLM"
+    },
+    {
+      "parameters": {
+        "url": "=https://sheets.googleapis.com/v4/spreadsheets/{{ $json.id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -2512,
+        336
+      ],
+      "id": "4731a594-1551-4c49-b26e-805ec3650015",
+      "name": "HTTPRequest"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Process all items and return only folderName with whitespace removed\nreturn $input.all().map(item => {\n  const name = item.json.name;\n  const underscoreIndex = name.indexOf('-');\n  \n  return {\n    json: {\n      id: item.json.id,\n      folderName: underscoreIndex !== -1 \n        ? name.substring(0, underscoreIndex).trim() \n        : name.trim()\n    }\n  };\n});\n\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2400,
+        672
+      ],
+      "id": "01a76b4a-b443-4180-a109-ea0737d04fcf",
+      "name": "Code in JavaScript17"
+    },
+    {
+      "parameters": {
+        "operation": "createFromText",
+        "content": "={{ $json.markdown }}",
+        "name": "={{ $json.Id }}.docx",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{ $('Get markdown data11').item.json.folder_id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        416,
+        848
+      ],
+      "id": "e3e9d98e-03d7-4194-8582-1ee1ba746b0c",
+      "name": "Upload Doc10"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e89e50a3-dadf-46a9-81f1-04ae1237fa34",
+              "name": "markdown",
+              "value": "={{ $('Pass output1').item.json.markdown }}",
+              "type": "string"
+            },
+            {
+              "id": "f19e8e1b-9d72-428e-b6fd-eeae85237902",
+              "name": "Id",
+              "value": "={{ $('Loop for 1st LLM1').item.json.Id }}",
+              "type": "string"
+            },
+            {
+              "id": "23fb4322-64c4-498b-b084-3521e1f856b9",
+              "name": "folder_id",
+              "value": "={{ $('Combine Folder id with name1').item.json.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        848
+      ],
+      "id": "73e32a2b-60d5-4a01-84b5-afd7c44fa883",
+      "name": "Get markdown data11"
+    },
+    {
+      "parameters": {
+        "operation": "toText",
+        "sourceProperty": "markdown",
+        "options": {
+          "fileName": "={{ $json.Id }}.md"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        784,
+        848
+      ],
+      "id": "76c546ba-ad2a-49f3-b608-10053f846e15",
+      "name": "Convert to Markdown15"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ff1e7100-04e8-4831-ac4c-fb09ba535dba",
+              "name": "markdown",
+              "value": "={{ $('Pass output1').item.json.markdown }}",
+              "type": "string"
+            },
+            {
+              "id": "8637b6ab-c48b-49a0-bb3f-1556ba5bebc5",
+              "name": "Id",
+              "value": "={{ $('Combine Folder id with name1').item.json.Id }}",
+              "type": "string"
+            },
+            {
+              "id": "60ea6655-ca5d-4594-ad28-8c7962031287",
+              "name": "folder_id",
+              "value": "={{ $('Combine Folder id with name1').item.json.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        608,
+        848
+      ],
+      "id": "180b1f77-ec51-4c90-9df9-d80acad0fc36",
+      "name": "Edit Fields23"
+    },
+    {
+      "parameters": {
+        "name": "={{ $('Get markdown data11').item.json.Id }}.md",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{$('Edit Fields23').item.json.folder_id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        944,
+        848
+      ],
+      "id": "e073424d-5803-4519-9bf2-191161ce6c85",
+      "name": "Upload md file13"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1yLnXK3gq5SKF4dr9u89f9d7AwKUwF0hPvWp1WYF7FoI/edit?gid=1255506520#gid=1255506520",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "={{ $('Combine Folder id with name1').item.json.folderName }}",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Markdown format Word Doc Created": "Yes",
+            "Markdown File Generated ": "Yes",
+            "Image Generated": "Yes",
+            "Completed": "Yes",
+            "Id": "={{ $('Combine Folder id with name1').item.json.Id }}",
+            "Failed Validation Need Review": "PASS"
+          },
+          "matchingColumns": [
+            "Id"
+          ],
+          "schema": [
+            {
+              "id": "Id",
+              "displayName": "Id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Industry",
+              "displayName": "Industry",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Subindustry",
+              "displayName": "Subindustry",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Business_Function",
+              "displayName": "Business_Function",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Business_Capability",
+              "displayName": "Business_Capability",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Stakeholder_Or_User",
+              "displayName": "Stakeholder_Or_User",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Title_Of_AI_Use_Case",
+              "displayName": "Title_Of_AI_Use_Case",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Description",
+              "displayName": "Description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Impact",
+              "displayName": "Impact",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Action_Implementation_Plan",
+              "displayName": "Action_Implementation_Plan",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Expected_Outcomes_And_Results",
+              "displayName": "Expected_Outcomes_And_Results",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Datasets",
+              "displayName": "Datasets",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "AI_Capabilities_And_Tech",
+              "displayName": "AI_Capabilities_And_Tech",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Digital_Platforms_And_Tools",
+              "displayName": "Digital_Platforms_And_Tools",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "AI_Algo_And_Frameworks",
+              "displayName": "AI_Algo_And_Frameworks",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Tools_And_Models",
+              "displayName": "Tools_And_Models",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "References",
+              "displayName": "References",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Other_References",
+              "displayName": "Other_References",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "combined_text",
+              "displayName": "combined_text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "__merged__",
+              "displayName": "__merged__",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Markdown format Word Doc Created",
+              "displayName": "Markdown format Word Doc Created",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Markdown File Generated ",
+              "displayName": "Markdown File Generated ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Image Generated",
+              "displayName": "Image Generated",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Completed",
+              "displayName": "Completed",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Failed Validation Need Review",
+              "displayName": "Failed Validation Need Review",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        176,
+        48
+      ],
+      "id": "43b73989-70a1-48a9-b134-eb39c89e393c",
+      "name": "Update row in sheet5",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -80,
+        32
+      ],
+      "id": "f99bf424-e88e-4925-8b25-d42c138e2b8f",
+      "name": "Loop Over Items25"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "36f6cab2-2b15-47a5-9cb6-8b23adbbf048",
+              "leftValue": "={{ $json.validation_results_raw.validation_status }}",
+              "rightValue": "PASS",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "93d253bf-3e42-463e-9a68-09391809b5c4",
+              "leftValue": "={{ $json.validation_results_raw.safe_to_publish }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        864
+      ],
+      "id": "a0115042-dc01-48b5-8702-fdbb5bbb5531",
+      "name": "If3"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract content and token usage from OpenAI response\nconst results = [];\n\nfor (const item of $input.all()) {\n  // Try multiple possible locations for the response\n  let raw = item.json?.choices?.[0]?.message?.content ||  // Standard OpenAI format\n            item.json?.message?.content ||                  // Alternative format\n            item.json?.completion ||                        // Legacy format\n            item.json?.output ||                            // Generic output\n            item.json;                                      // Direct JSON\n\n  // Extract token usage if available\n  const usage = item.json?.usage || {\n    prompt_tokens: 0,\n    completion_tokens: 0,\n    total_tokens: 0\n  };\n\n  if (!raw) {\n    console.log(\"No content found in item:\", JSON.stringify(item.json).substring(0, 200));\n    continue;\n  }\n\n  let markdown = \"\";\n  let image_prompt = \"\";\n\n  // If already structured JSON object\n  if (typeof raw === \"object\" && raw !== null && (raw.markdown || raw.image_prompt)) {\n    markdown = String(raw.markdown || \"\").trim();\n    image_prompt = String(raw.image_prompt || \"\").trim();\n  } else {\n    // Convert to string and clean code fences\n    let cleaned = String(raw)\n      .trim()\n      .replace(/^```json\\s*/i, \"\") // Remove ```json at the start\n      .replace(/```$/i, \"\")        // Remove ``` at the end\n      .trim();\n\n    // Try parsing as JSON\n    try {\n      const parsed = JSON.parse(cleaned);\n      markdown = String(parsed.markdown || \"\").trim();\n      image_prompt = String(parsed.image_prompt || \"\").trim();\n    } catch (err) {\n      console.log(\"JSON parse failed, attempting regex extraction\");\n      \n      // Fallback: regex extraction for malformed JSON\n      const markdownMatch = cleaned.match(/\"markdown\"\\s*:\\s*\"((?:[^\"\\\\]|\\\\.)*)\"/s);\n      const imageMatch = cleaned.match(/\"image_prompt\"\\s*:\\s*\"((?:[^\"\\\\]|\\\\.)*)\"/s);\n\n      if (markdownMatch) {\n        markdown = markdownMatch[1]\n          .replace(/\\\\\"/g, '\"')\n          .replace(/\\\\n/g, \"\\n\")\n          .replace(/\\\\\\\\/g, \"\\\\\")\n          .trim();\n      } else {\n        // If no JSON structure found, use entire cleaned content as markdown\n        markdown = cleaned;\n      }\n\n      if (imageMatch) {\n        image_prompt = imageMatch[1]\n          .replace(/\\\\\"/g, '\"')\n          .trim();\n      }\n    }\n  }\n\n  // Final cleanup for markdown\n  markdown = markdown\n    .replace(/^```/i, \"\")\n    .replace(/```$/i, \"\")\n    .trim();\n\n  // Calculate costs (GPT-4o-mini pricing)\n  const input_cost = usage.prompt_tokens * 0.00000015;   // $0.150 per 1M tokens\n  const output_cost = usage.completion_tokens * 0.0000006; // $0.600 per 1M tokens\n  const total_cost = input_cost + output_cost;\n\n  results.push({\n    json: {\n      markdown: markdown,\n      image_prompt: image_prompt,\n      // Token usage data\n      prompt_tokens: usage.prompt_tokens,\n      completion_tokens: usage.completion_tokens,\n      total_tokens: usage.total_tokens,\n      input_cost: input_cost,\n      output_cost: output_cost,\n      total_cost: total_cost,\n      model: item.json?.model || \"gpt-4o-mini\"\n    },\n  });\n}\n\nif (results.length === 0) {\n  throw new Error(\"No valid content extracted from OpenAI response. Check input structure.\");\n}\n\nreturn results;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1040,
+        1152
+      ],
+      "id": "53e43266-82e8-431d-8143-31ac6047d921",
+      "name": "Pass output16"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "494685b3-335c-49d3-98c7-438a775b0689",
+              "leftValue": "={{ $json.validation_status }}",
+              "rightValue": "PASS",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "21a4969c-fa99-4d9a-bcc0-7b4b955b4960",
+              "leftValue": "={{ $json.safe_to_publish }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        432,
+        1408
+      ],
+      "id": "206b952d-a279-453d-a2a5-eeda7da2128f",
+      "name": "If4"
+    },
+    {
+      "parameters": {
+        "operation": "createFromText",
+        "content": "={{ $json.markdown }}",
+        "name": "={{ $json.Id }}.docx",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{ $('Get markdown data1').item.json.folder_id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        832,
+        1392
+      ],
+      "id": "929840cc-7087-4ad3-874c-e114c1598548",
+      "name": "Upload Doc1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e89e50a3-dadf-46a9-81f1-04ae1237fa34",
+              "name": "markdown",
+              "value": "={{ $('Pass output16').item.json.markdown }}",
+              "type": "string"
+            },
+            {
+              "id": "f19e8e1b-9d72-428e-b6fd-eeae85237902",
+              "name": "Id",
+              "value": "={{ $('Loop for 1st LLM1').item.json.Id }}",
+              "type": "string"
+            },
+            {
+              "id": "23fb4322-64c4-498b-b084-3521e1f856b9",
+              "name": "folder_id",
+              "value": "={{ $('Combine Folder id with name1').item.json.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        624,
+        1392
+      ],
+      "id": "6334c47d-0409-437a-880b-b17786f38e23",
+      "name": "Get markdown data1"
+    },
+    {
+      "parameters": {
+        "operation": "toText",
+        "sourceProperty": "markdown",
+        "options": {
+          "fileName": "={{ $json.Id }}.md"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        1248,
+        1392
+      ],
+      "id": "e8523f96-a53f-4fb3-9722-2915daa12abe",
+      "name": "Convert to Markdown16"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ff1e7100-04e8-4831-ac4c-fb09ba535dba",
+              "name": "markdown",
+              "value": "={{ $('Pass output16').item.json.markdown }}",
+              "type": "string"
+            },
+            {
+              "id": "8637b6ab-c48b-49a0-bb3f-1556ba5bebc5",
+              "name": "Id",
+              "value": "={{ $('Combine Folder id with name1').item.json.Id }}",
+              "type": "string"
+            },
+            {
+              "id": "60ea6655-ca5d-4594-ad28-8c7962031287",
+              "name": "folder_id",
+              "value": "={{ $('Combine Folder id with name1').item.json.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1056,
+        1392
+      ],
+      "id": "84090e91-63d2-4c6d-abdc-588753a7df90",
+      "name": "Edit Fields24"
+    },
+    {
+      "parameters": {
+        "name": "={{ $('Get markdown data1').item.json.Id }}.md",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{$('Edit Fields24').item.json.folder_id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1456,
+        1392
+      ],
+      "id": "8ef2b4ea-51ec-4b2f-81da-d5df7f026ab7",
+      "name": "Upload md file14"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are an expert AI content writer creating professional Sub-Industry Reports. You MUST follow the exact 19-section blueprint structure provided below.\n\n=== CRITICAL RULES ===\n\nANTI-HALLUCINATION:\n1. COMPANY NAMES: Only use companies explicitly named in References/Other_References\n2. STATISTICS: Only cite numbers that appear in References with [n] citation\n3. CASE STUDIES: Write anonymized examples UNLESS a specific company is documented in References\n4. REFERENCES: EXACT copy of provided references - DO NOT add new URLs or sources\n5. MARK UNCERTAINTY: Use \"(citation needed)\" for reasonable industry claims without references\n\nSTRUCTURAL COMPLIANCE:\n- Follow ALL 19 sections in exact order\n- Use specified markdown heading levels (### for main sections, #### for subsections)\n- Meet minimum content requirements for each section\n- Include all required elements (tables, bullets, CTAs)\n\n=== INPUT DATA ===\n\nIndustry: {{ $json.Industry }}\nSubIndustry: {{ $json.Subindustry }}\nBusiness Function: {{ $json.Business_Function }}\nBusiness Capability: {{ $json.Business_Capability }}\nTitle: {{ $json.Title_Of_AI_Use_Case }}\nDescription: {{ $json.Description }}\nImpact: {{ $json.Impact }}\nImplementation Plan: {{ $json.Action_Implementation_Plan }}\nExpected Outcomes: {{ $json.Expected_Outcomes_And_Results }}\n\nVERIFIED REFERENCES (YOUR ONLY CITATION SOURCES):\n{{ $json.References }}\n{{ $json.Other_References }}\n\nMETADATA (CONTEXT ONLY - use generic terms unless cited):\nDatasets: {{ $json.Datasets }}\nAI Tech: {{ $json.AI_Capabilities_And_Tech }}\nPlatforms: {{ $json.Digital_Platforms_And_Tools }}\nAlgorithms: {{ $json.AI_Algo_And_Frameworks }}\n\n=== MANDATORY 19-SECTION BLUEPRINT ===\n\nSECTION 1: Eyebrow + Breadcrumbs\nFormat exactly as (do NOT include section title):\nApplied AI for {{ $json.Industry }}\nHome → Industries → {{ $json.Industry }} → {{ $json.Subindustry }}\n\nSECTION 2: H1 Heading\n# AI in {{ $json.Subindustry }}: Challenges, Trends, and High-ROI Use Cases (2025 Guide)\n\nSECTION 3: Executive Scanner\n### Executive Scanner\n- 1-2 sentence summary of AI transformation impact\n- KPI table (markdown format, 3 rows minimum, qualitative values)\n- Include these CTAs: [Explore AI Solutions](#) | [Book Consultation](#) | [Download AI Kit](#)\n\nSECTION 4: Executive Summary  \n### Executive Summary\n- 5-6 bullet points on market context and AI opportunities\n- Final bullet MUST be: \"Last updated: November 19, 2025\"\n\nSECTION 5: What is [SubIndustry]\n### What is {{ $json.Subindustry }}\n- 2-3 paragraphs (4-6 sentences each)\n- Define the sub-industry using general business knowledge\n- Mention 1-2 adjacent sub-industries with links: [Example SubIndustry](#)\n\nSECTION 6: Unique Challenges\n### Unique Challenges\n- 7-8 industry-specific challenges as bullet points\n- Group by theme (Data, Operations, Compliance, Technology)\n\nSECTION 7: Current Trends\n### Current Trends\n- 5-7 trend entries\n- Each trend format: **Trend Name** - What's changing - Why it matters - Evidence [n] OR (citation needed)\n- Add placeholder: *[Trend visualization placeholder]*\n\nSECTION 8: Data Landscape\n### Data Landscape\n- 2 paragraphs discussing data systems and entities\n- Use GENERIC terms: \"ERP systems\", \"CRM platforms\", \"data warehouses\"\n- Include checklist: \"**Key Data Requirements:**\" (5-7 bullet items)\n\nSECTION 9: AI Opportunities Table\n### AI Opportunities & Use Cases\nMarkdown table with 8-10 rows minimum:\n| Use Case | Problem Solved | AI Approach | Data Required | Human-in-Loop | KPIs (Before→After) | Complexity | Time-to-Value | Risks | Integration Needs | Maturity Stage |\n\nUse qualitative values: \"Moderate improvement\", \"Significant reduction\", \"Low/Medium/High\"\n\nSECTION 10: Deep Dive\n### Deep Dive: High-Impact Use Cases\n3 subsections using #### headings:\n\n#### Use Case 1: [Name from input data]\n- 2-3 paragraphs\n- Architecture pipeline description\n- KPI table (Before/After with qualitative values)\n- Skills/data readiness assessment\n\n#### Use Case 2: [Related use case]\n[Same structure]\n\n#### Use Case 3: [Related use case]\n[Same structure]\n\nSECTION 11: Implementation Blueprint\n### Implementation Blueprint\n#### Crawl Phase (Weeks 1-4)\n- Deliverables (4-5 bullets)\n\n#### Walk Phase (Weeks 5-12)\n- Deliverables (4-5 bullets)\n\n#### Run Phase (Weeks 13+)\n- Deliverables (4-5 bullets)\n\nSECTION 12: Risks & Governance\n### Risks & Governance\n- 6-7 mitigation strategies as bullet points\n- Cover: privacy, bias, audit trails, security, compliance\n\nSECTION 13: Case Studies\n### Case Studies\n\n#### Case Study 1: Anonymized Use Case\n- **Situation:** [Context] (2-3 sentences)\n- **Action:** [Steps taken] (3-4 sentences)\n- **Result:** [Outcomes with (citation needed)] (2-3 sentences)\n\n#### Case Study 2: Real Example OR Second Anonymized\n[If company name found in References - use it with [n] citation]\n[Otherwise - create second anonymized example]\n[Same structure as Case Study 1]\n\nSECTION 14: FAQ\n### Frequently Asked Questions\n10-12 Q&A pairs:\n**Q1: [Question]**  \nA: [Answer with citation [n] or (citation needed)]\n\nSECTION 15: Glossary\n### Glossary\n18-25 terms in format:\n- **Term**: Definition in 1-2 sentences.\n\nSECTION 16: Related Pages\n### Related Pages\n6 internal links:\n- [Related Sub-Industry 1](#)\n- [Related Business Function](#)\n[etc.]\n\nSECTION 17: CTA Block\n### Take Action\n- [Fix My AI Transformation](#)\n- [Book an AI Bootcamp](#)\n- [Get the Applied AI Kit](#)\n\nSECTION 18: Author E-E-A-T\n### About This Report\n1 paragraph with author credentials and editorial review statement\n\nSECTION 19: References\n### References\nEXACT copy of all provided references:\n{{ $json.References }}\n{{ $json.Other_References }}\n\nNumber them [1], [2], [3]... in order received.\nDO NOT add new sources.\n\n=== PRE-GENERATION CHECKLIST ===\n\nBefore generating, verify:\n□ I will include ALL 19 sections in exact order\n□ I will use correct markdown heading levels (### and ####)\n□ I have numbered all provided references [1], [2], [3]...\n□ I will use generic platform/tool terms unless specifically cited\n□ I will create anonymized case studies (company names unlikely in refs)\n□ I will use qualitative KPI values, not specific numbers\n□ I will mark unsourced claims with \"(citation needed)\"\n□ I will NOT invent new references or URLs\n\n=== OUTPUT FORMAT ===\n\nReturn ONLY this JSON structure with no code fences, no markdown formatting:\n\n{\n  \"markdown\": \"COMPLETE 19-section content following blueprint exactly\",\n  \"image_prompt\": \"Professional horizontal banner showing [SubIndustry] with abstract AI elements, minimalist style, cool blue and charcoal palette, innovative forward-looking mood, no text or logos\"\n}\n\n=== VALIDATION WARNING ===\n\nYour output will be validated for:\n- Structural completeness (all 19 sections present)\n- Citation integrity (all [n] map to provided references)\n- No fabricated companies, statistics, or references\n- Proper markdown formatting\n\nMissing sections or fabricated content = AUTOMATIC REJECTION\n"
+            },
+            {
+              "content": "=You are a legally-compliant AI content writer with STRICT structural adherence requirements.\n\nPRIMARY OBJECTIVES:\n1. Follow the 19-section blueprint EXACTLY - no omissions, no reordering\n2. Use ONLY information from provided References for specific claims\n3. Maintain professional quality while avoiding fabrication\n\nSTRUCTURAL REQUIREMENTS:\n- Generate ALL 19 sections in specified order\n- Use correct markdown heading syntax (### for sections, #### for subsections)\n- Meet minimum content lengths for each section\n- Include all required tables, bullets, and CTAs\n\nEVIDENCE REQUIREMENTS:\nEvery specific claim must be:\n1. Cited from provided References [n], OR\n2. Marked as \"(citation needed)\", OR\n3. Expressed as general industry knowledge\n\nPROHIBITED ACTIONS:\n- Skipping or combining blueprint sections\n- Inventing reference citations or URLs\n- Using company names not in References\n- Adding statistics without [n] citations\n- Naming specific vendor products unless cited\n- Creating \"Real Example\" case studies without verified companies\n\nREQUIRED ACTIONS:\n- Copy References section EXACTLY as provided\n- Use generic terminology for tools/platforms\n- Create anonymized case studies by default\n- Mark speculative claims with \"(citation needed)\"\n- Generate comprehensive content for ALL sections\n\nVALIDATION CONTEXT:\nYour output will be strictly validated for structural compliance and factual integrity. Missing sections or fabrication will cause automatic rejection. Focus on completeness first, then quality.\n",
+              "role": "system"
+            }
+          ]
+        },
+        "options": {
+          "maxTokens": 10000,
+          "temperature": 0.3
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        -160,
+        352
+      ],
+      "id": "394c30b4-d439-41ce-88e7-c5af3ab5ede0",
+      "name": "LLM Content Generation1"
+    },
+    {
+      "parameters": {
+        "messages": {
+          "message": [
+            {
+              "content": "=LEGAL COMPLIANCE VALIDATOR - FOCUS ON FABRICATION AND CITATION INTEGRITY\n\nGENERATED CONTENT:\n{{ $('Pass output1').item.json.markdown }}\n\nVERIFIED REFERENCES (ONLY VALID SOURCES):\n{{ $('Loop for 1st LLM1').item.json.References }}\n{{ $('Loop for 1st LLM1').item.json.Other_References }}\n\nINPUT METADATA (CONTEXT ONLY):\nIndustry: {{ $('Loop for 1st LLM1').item.json.Industry }}\nSubIndustry: {{ $('Loop for 1st LLM1').item.json.Subindustry }}\nDescription: {{ $('Loop for 1st LLM1').item.json.Description }}\n\nPRIMARY VALIDATION OBJECTIVE:\nIdentify and flag content that creates LEGAL RISK through fabrication, false claims, or unverified statistics.\n\nVALIDATION PRIORITIES (IN ORDER):\n1. Numeric claims without citations - HIGHEST RISK\n2. Named companies not in provided References - CRITICAL RISK\n3. Fabricated URLs or references - CRITICAL RISK\n4. Specific vendor products without verification - MEDIUM RISK\n\nTOLERANCES (ALLOWED - DO NOT FLAG):\n- General industry statements marked \"(citation needed)\"\n- Generic technology terms: \"AI systems\", \"cloud platforms\", \"machine learning frameworks\"\n- Anonymized case studies: \"A retail organization\", \"An agricultural company\"\n- Qualitative KPI values: \"Moderate improvement\", \"Significant reduction\"\n- Standard industry challenges without specific claims\n- General knowledge about the industry or technology\n\nHIGH-RISK CONTENT (MUST FLAG):\n- Specific percentages without [n] citation: \"30% reduction\", \"40% improvement\"\n- Dollar amounts without citation: \"saved $2M annually\"\n- Exact metrics without citation: \"detected 500 diseases\"\n- Named companies without verification in provided References\n- URLs in References section not matching provided input References\n- Specific products with implied endorsement: \"Using Salesforce Einstein AI delivered...\"\n\nSCORING APPROACH:\nFocus compliance_score on legal risk, not structural completeness.\nDeduct heavily for fabricated statistics, minimally for missing sections.\n\nReturn validation as structured JSON.\n",
+              "role": "system"
+            },
+            {
+              "content": "=You are a legal compliance validator. Focus ONLY on content that creates legal or reputational risk.\n\nVALIDATION PROCESS:\n\nSTEP 1: EXTRACT NUMERIC CLAIMS\nScan the entire generated content for specific numbers:\n- Percentages: \"30%\", \"40% improvement\"\n- Dollar amounts: \"$2M\", \"saved $500,000\"\n- Specific metrics: \"500 diseases\", \"95% accuracy\"\n- Dates and timelines: \"within 6 months\"\n\nFor each numeric claim found:\n- Record the exact claim text\n- Record the section location\n- Check if immediately followed by [n] citation\n- If NO citation: Add to fabricated_claims array with severity MAJOR\n\nSTEP 2: VERIFY CITATIONS\nCount bracket citations in content: [1], [2], [3]...\nCount numbered references in References section\nMatch each [n] to a reference\nFlag orphan citations (citation number exceeds reference count)\n\nSTEP 3: CHECK COMPANY NAMES\nScan for capitalized proper nouns that could be company names\nIgnore anonymized formats: \"A company\", \"An organization\", \"The retailer\"\nCheck each company name against provided input References\nIf company name NOT in input References: Flag as CRITICAL issue\n\nSTEP 4: VERIFY REFERENCE URLS\nExtract all URLs from References section in generated content\nCompare each URL against provided input References\nIf URL NOT in input References: Flag as fabricated (CRITICAL)\n\nSTEP 5: TOLERANCE APPLICATION\nReview flagged issues:\n\nDOWNGRADE TO MINOR OR IGNORE:\n- Claims ending with \"(citation needed)\"\n- Generic statements: \"Organizations are adopting AI\"\n- Qualitative descriptions without numbers\n- Anonymized case studies\n- General industry knowledge\n\nKEEP AS MAJOR OR CRITICAL:\n- Specific numbers without [n]\n- Named companies without verification\n- Fabricated URLs\n- Performance promises without proof\n\nSTEP 6: CALCULATE SCORES\n\nCount critical_issues (fabricated URLs, unverified companies)\nCount major_issues (uncited statistics)\nCount minor_issues (formatting issues)\n\ncitation_score = 100 - (orphan_citations × 5) - (uncited_numeric_claims × 8)\nfabrication_penalty = (critical_issues × 25) + (major_issues × 12)\ncompliance_score = max(0, 100 - fabrication_penalty)\n\ntotal_numeric_claims = count of all statistics found\nuncited_claims = numeric claims without [n]\nhallucination_rate = uncited_claims / max(1, total_numeric_claims)\n\nSTEP 7: DECISION\n\nFAIL if:\n- critical_issues > 0 (fabricated URLs, unverified companies)\n- uncited_numeric_claims > 5\n- hallucination_rate > 0.40\n- compliance_score < 55\n\nNEEDS_REVIEW if:\n- uncited_numeric_claims 3-5\n- hallucination_rate 0.20-0.40\n- compliance_score 55-75\n\nPASS if:\n- critical_issues = 0\n- uncited_numeric_claims <= 2\n- hallucination_rate < 0.20\n- compliance_score >= 75\n\nOUTPUT FORMAT (JSON only):\n\n{\n  \"validation_status\": \"PASS\" | \"NEEDS_REVIEW\" | \"FAIL\",\n  \"legal_risk_level\": \"NONE\" | \"LOW\" | \"MEDIUM\" | \"HIGH\" | \"CRITICAL\",\n  \"safe_to_publish\": true | false,\n  \n  \"critical_legal_issues\": [\n    {\n      \"type\": \"FALSE_CLAIM\" | \"SOURCE_FABRICATION\" | \"DEFAMATION_RISK\",\n      \"claim\": \"exact text with number or company name\",\n      \"location\": \"section name\",\n      \"legal_exposure\": \"why this creates legal risk\",\n      \"evidence\": \"what verification is missing\",\n      \"citation\": \"[X]\" | \"NO CITATION\",\n      \"action_required\": \"REMOVE | ADD_CITATION | ANONYMIZE | VERIFY_AND_CITE\"\n    }\n  ],\n  \n  \"hallucination_analysis\": {\n    \"total_factual_claims\": 0,\n    \"total_numeric_claims\": 0,\n    \"uncited_numeric_claims\": 0,\n    \"fabricated_claims\": [\n      {\n        \"claim\": \"exact text\",\n        \"location\": \"section\",\n        \"type\": \"statistic | metric | percentage\",\n        \"severity\": \"CRITICAL\" | \"MAJOR\"\n      }\n    ],\n    \"hallucination_rate\": 0.0\n  },\n  \n  \"reference_verification\": {\n    \"extracted_urls\": [\n      {\n        \"url\": \"full URL\",\n        \"domain\": \"domain.com\",\n        \"appears_in_input_refs\": true | false,\n        \"validity_status\": \"valid | fabricated\"\n      }\n    ],\n    \"fabricated_urls\": 0\n  },\n  \n  \"citation_integrity\": {\n    \"total_citations\": 0,\n    \"orphan_citations\": 0,\n    \"uncited_numeric_claims\": 0,\n    \"citation_score\": 0\n  },\n  \n  \"compliance_score\": 0,\n  \"overall_risk_score\": 0,\n  \n  \"recommendations\": [\n    \"Add citation [n] to: 'specific claim text'\",\n    \"Remove uncited statistic: 'specific text'\",\n    \"Anonymize company name: 'CompanyX' to 'An organization'\"\n  ],\n  \n  \"publish_decision\": \"APPROVED\" | \"REQUIRES_MANUAL_REVIEW\" | \"REJECTED\",\n  \"reviewer_notes\": \"Brief summary of main legal risks found\"\n}\n"
+            }
+          ]
+        },
+        "simplify": true,
+        "options": {
+          "temperature": 0.1
+        },
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.perplexity",
+      "typeVersion": 1,
+      "position": [
+        -352,
+        864
+      ],
+      "id": "f10796a8-d64c-48d7-8ddc-ab9aadc46e3f",
+      "name": "Validation node1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const results = [];\n\nfor (const item of $input.all()) {\n  let message = item.json.message;\n\n  if (typeof message === 'string') {\n    // Remove starting `````` or ```\n    message = message.replace(/^```[\\s\\S]*?\\n/, '');\n    // Remove ending ```\n    message = message.replace(/```$/, '').trim();\n  }\n\n  let llmOutput;\n  try {\n    llmOutput = JSON.parse(message);\n  } catch (err) {\n    llmOutput = { raw: item.json.message, parseError: err.message };\n  }\n\n  results.push({\n    json: {\n      validation_results: JSON.stringify(llmOutput, null, 2),  // Stringify for LLM readability\n      validation_results_raw: llmOutput,  // Keep parsed object for other nodes\n      id: item.json.id,\n      citations: item.json.citations\n    }\n  });\n}\n\nreturn results;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -176,
+        864
+      ],
+      "id": "887b1312-6a7c-4775-ae4a-02d8a6e9ec37",
+      "name": "Validation node output1"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1yLnXK3gq5SKF4dr9u89f9d7AwKUwF0hPvWp1WYF7FoI/edit?gid=1255506520#gid=1255506520",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "={{ $('Combine Folder id with name1').item.json.Industry }}",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Failed Validation Need Review": "={{ $json.validation_results_raw.validation_status }}",
+            "Id": "={{ $('Loop for 1st LLM1').item.json.Id }}"
+          },
+          "matchingColumns": [
+            "Id"
+          ],
+          "schema": [
+            {
+              "id": "Id",
+              "displayName": "Id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Industry",
+              "displayName": "Industry",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Subindustry",
+              "displayName": "Subindustry",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Business_Function",
+              "displayName": "Business_Function",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Business_Capability",
+              "displayName": "Business_Capability",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Stakeholder_Or_User",
+              "displayName": "Stakeholder_Or_User",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Title_Of_AI_Use_Case",
+              "displayName": "Title_Of_AI_Use_Case",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Description",
+              "displayName": "Description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Impact",
+              "displayName": "Impact",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Action_Implementation_Plan",
+              "displayName": "Action_Implementation_Plan",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Expected_Outcomes_And_Results",
+              "displayName": "Expected_Outcomes_And_Results",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Datasets",
+              "displayName": "Datasets",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "AI_Capabilities_And_Tech",
+              "displayName": "AI_Capabilities_And_Tech",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Digital_Platforms_And_Tools",
+              "displayName": "Digital_Platforms_And_Tools",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "AI_Algo_And_Frameworks",
+              "displayName": "AI_Algo_And_Frameworks",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Tools_And_Models",
+              "displayName": "Tools_And_Models",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "References",
+              "displayName": "References",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Other_References",
+              "displayName": "Other_References",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "combined_text",
+              "displayName": "combined_text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "__merged__",
+              "displayName": "__merged__",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Markdown format Word Doc Created",
+              "displayName": "Markdown format Word Doc Created",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Markdown File Generated ",
+              "displayName": "Markdown File Generated ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Image Generated",
+              "displayName": "Image Generated",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Completed",
+              "displayName": "Completed",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Failed Validation Need Review",
+              "displayName": "Failed Validation Need Review",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        560,
+        1152
+      ],
+      "id": "ebc04e1b-ec76-41ff-a916-a9931f589d5a",
+      "name": "Update validation status1"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=CONTENT REGENERATION WITH STRICT BLUEPRINT ADHERENCE\n\nYou are regenerating content that FAILED validation. Your task is to produce structurally complete, factually accurate content following the EXACT same blueprint as the first generation attempt.\n\nPREVIOUS VALIDATION FAILURES:\n{{ $('Loop for 2nd LLM').item.json.validation_results }}\n\nPRIMARY OBJECTIVE: Generate content with IDENTICAL structure to first attempt while fixing legal/citation issues.\n\n=== CRITICAL RULES ===\n\nANTI-HALLUCINATION:\n1. COMPANY NAMES: Only use companies explicitly named in References/Other_References\n2. STATISTICS: Only cite numbers that appear in References with [n] citation\n3. CASE STUDIES: Write anonymized examples UNLESS a specific company is documented in References\n4. REFERENCES: EXACT copy of provided references - DO NOT add new URLs or sources\n5. MARK UNCERTAINTY: Use \"(citation needed)\" for reasonable industry claims without references\n\nSTRUCTURAL COMPLIANCE (MANDATORY):\n- Follow ALL 19 sections in exact order\n- Use specified markdown heading levels (### for main sections, #### for subsections)\n- Meet minimum content requirements for each section\n- Include all required elements (tables, bullets, CTAs)\n\n=== INPUT DATA ===\n\nIndustry: {{ $('Loop for 1st LLM1').item.json.Industry }}\nSubIndustry: {{ $('Loop for 1st LLM1').item.json.Subindustry }}\nBusiness Function: {{ $('Loop for 1st LLM1').item.json.Business_Function }}\nBusiness Capability: {{ $('Loop for 1st LLM1').item.json.Business_Capability }}\nTitle: {{ $('Loop for 1st LLM1').item.json.Title_Of_AI_Use_Case }}\nDescription: {{ $('Loop for 1st LLM1').item.json.Description }}\nImpact: {{ $('Loop for 1st LLM1').item.json.Impact }}\nImplementation Plan: {{ $('Loop for 1st LLM1').item.json.Action_Implementation_Plan }}\nExpected Outcomes: {{ $('Loop for 1st LLM1').item.json.Expected_Outcomes_And_Results }}\n\nVERIFIED REFERENCES (YOUR ONLY CITATION SOURCES):\n{{ $('Loop for 1st LLM1').item.json.References }}\n{{ $('Loop for 1st LLM1').item.json.Other_References }}\n\nMETADATA (CONTEXT ONLY - use generic terms unless cited):\nDatasets: {{ $('Loop for 1st LLM1').item.json.Datasets }}\nAI Tech: {{ $('Loop for 1st LLM1').item.json.AI_Capabilities_And_Tech }}\nPlatforms: {{ $('Loop for 1st LLM1').item.json.Digital_Platforms_And_Tools }}\nAlgorithms: {{ $('Loop for 1st LLM1').item.json.AI_Algo_And_Frameworks }}\n\n=== MANDATORY 19-SECTION BLUEPRINT ===\n\nSECTION 1: Eyebrow + Breadcrumbs\nFormat EXACTLY as (do NOT include section title, no markdown heading):\nApplied AI for {{ $('Loop for 1st LLM1').item.json.Industry }}\nHome → Industries → {{ $('Loop for 1st LLM1').item.json.Industry }} → {{ $('Loop for 1st LLM1').item.json.Subindustry }}\n\nSECTION 2: H1 Heading\n# AI in {{ $('Loop for 1st LLM1').item.json.Subindustry }}: Challenges, Trends, and High-ROI Use Cases (2025 Guide)\n\nSECTION 3: Executive Scanner\n### Executive Scanner\n- 1-2 sentence summary of AI transformation impact\n- KPI table in this EXACT markdown format:\n| KPI | Value |\n| --- | --- |\n| Efficiency Improvement | High/Moderate/Low |\n| Cost Reduction | Moderate/Significant |\n| Service Quality | Consistent/High |\n\n- Include these CTAs on separate line: [Explore AI Solutions](#) | [Book Consultation](#) | [Download AI Kit](#)\n\nSECTION 4: Executive Summary\n### Executive Summary\n- 5-6 bullet points on market context and AI opportunities\n- Final bullet MUST be EXACTLY: \"Last updated: November 19, 2025\"\n\nSECTION 5: What is [SubIndustry]\n### What is {{ $('Loop for 1st LLM1').item.json.Subindustry }}\n- 2-3 paragraphs (4-6 sentences each)\n- Define the sub-industry using general business knowledge\n- End with: \"Adjacent sub-industries include [Example SubIndustry](#) and [Another SubIndustry](#).\"\n\nSECTION 6: Unique Challenges\n### Unique Challenges\n- 7-8 industry-specific challenges as bullet points\n- Format with theme prefix: \"- **Theme**: Challenge description\"\n- Group by: Data, Operations, Compliance, Technology, Scalability, Security, Skill Gaps\n\nSECTION 7: Current Trends\n### Current Trends\n- 5-7 trend entries\n- EXACT format per trend: \"- **Trend Name** - What's changing - Why it matters - Evidence [n] OR (citation needed)\"\n- End section with: \"*Trend visualization placeholder*\"\n\nSECTION 8: Data Landscape\n### Data Landscape\n- First paragraph: Describe data systems and entities (4-5 sentences)\n- List systems as bullet points or inline: \"ERP systems, CRM platforms, data warehouses\"\n- Second paragraph: Integration importance (3-4 sentences)\n- End with checklist format:\n**Key Data Requirements:**\n- Requirement 1\n- Requirement 2\n[5-7 total bullets]\n\nSECTION 9: AI Opportunities & Use Cases\n### AI Opportunities & Use Cases\nMarkdown table with 8-10 rows minimum:\n| Use Case | Problem Solved | AI Approach | Data Required | Human-in-Loop | KPIs (Before→After) | Complexity | Time-to-Value | Risks | Integration Needs | Maturity Stage |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n| [name] | [problem] | [approach] | [data] | Low/Medium/High | Moderate improvement | Medium | Short | [risk] | [system] | Emerging |\n\nUse qualitative values: \"Moderate improvement\", \"Significant reduction\", \"Low/Medium/High\"\n\nSECTION 10: Deep Dive: High-Impact Use Cases\n### Deep Dive: High-Impact Use Cases\nEXACTLY 3 subsections using #### headings:\n\n#### Use Case 1: [Name from input data]\n- 2-3 paragraphs describing the use case\n- Architecture pipeline description\n- KPI table format:\n| KPI | Before | After |\n| --- | --- | --- |\n| [metric] | High/Low | Low/High |\n| [metric] | Moderate | High |\n\n- End with: \"Skills and data readiness assessments are crucial...\" or similar readiness note\n\n#### Use Case 2: [Related use case]\n[Same structure as Use Case 1]\n\n#### Use Case 3: [Related use case]\n[Same structure as Use Case 1]\n\nSECTION 11: Implementation Blueprint\n### Implementation Blueprint\nEXACTLY 3 subsections using #### headings:\n\n#### Crawl Phase (Weeks 1-4)\n- 4-5 deliverable bullets\n\n#### Walk Phase (Weeks 5-12)\n- 4-5 deliverable bullets\n\n#### Run Phase (Weeks 13+)\n- 4-5 deliverable bullets\n\nSECTION 12: Risks & Governance\n### Risks & Governance\n- 6-7 mitigation strategies as bullet points\n- Cover: privacy, bias, audit trails, security, compliance, stakeholder engagement\n\nSECTION 13: Case Studies\n### Case Studies\nEXACTLY 2 subsections using #### headings:\n\n#### Case Study 1: Anonymized Use Case\n- **Situation:** [Context in 2-3 sentences]\n- **Action:** [Steps taken in 3-4 sentences]\n- **Result:** [Outcomes with (citation needed) in 2-3 sentences]\n\n#### Case Study 2: Real Example OR Anonymized Use Case\n[If company name found in References - use it with [n] citation]\n[Otherwise - create second anonymized example with same structure]\n\nSECTION 14: Frequently Asked Questions\n### Frequently Asked Questions\n10-12 Q&A pairs in this EXACT format:\n**Q1: [Question]**  \nA: [Answer with citation [n] or (citation needed)]\n\n[Continue Q2, Q3... through Q10-Q12]\n\nSECTION 15: Glossary\n### Glossary\n18-25 terms in this EXACT format:\n- **Term**: Definition in 1-2 sentences.\n- **Another Term**: Definition in 1-2 sentences.\n\nSECTION 16: Related Pages\n### Related Pages\n6 internal links in bullet format:\n- [Related Sub-Industry 1](#)\n- [Related Business Function](#)\n- [Related Technology Topic](#)\n[etc. - 6 total]\n\nSECTION 17: Take Action\n### Take Action\nEXACTLY these 3 CTAs as bullets:\n- [Fix My AI Transformation](#)\n- [Book an AI Bootcamp](#)\n- [Get the Applied AI Kit](#)\n\nSECTION 18: About This Report\n### About This Report\n1 paragraph (3-4 sentences) with author credentials and editorial review statement\n\nSECTION 19: References\n### References\nEXACT copy of all provided references, each on new line:\n{{ $('Loop for 1st LLM1').item.json.References }}\n{{ $('Loop for 1st LLM1').item.json.Other_References }}\n\nDO NOT number them with [1], [2], [3]... - just list URLs as provided.\nDO NOT add new sources.\n\n=== CRITICAL FORMATTING RULES ===\n\n1. Section 1 has NO markdown heading - just two plain text lines\n2. Section 2 uses single # for H1\n3. Sections 3-19 use ### for main headings\n4. Only #### headings appear in: Deep Dive (3 subsections), Implementation Blueprint (3 subsections), Case Studies (2 subsections)\n5. Tables must use proper markdown with | separators and --- alignment row\n6. Bullets use single - with space\n7. Bold text uses **text** format\n8. Links use [text](#) format\n\n=== PRE-GENERATION CHECKLIST ===\n\nBefore generating, verify:\n□ I will include ALL 19 sections in exact order\n□ Section 1 has NO heading, just two text lines\n□ I will use ### for main sections, #### ONLY for specified subsections\n□ I have identified all provided references\n□ I will use generic platform/tool terms unless specifically cited\n□ I will create anonymized case studies (company names unlikely in refs)\n□ I will use qualitative KPI values, not specific numbers without citations\n□ I will mark unsourced claims with \"(citation needed)\"\n□ I will NOT number references - just list URLs as provided\n\n=== OUTPUT FORMAT ===\n\nReturn ONLY this JSON structure with no code fences, no markdown formatting:\n\n{\n  \"markdown\": \"COMPLETE 19-section content following blueprint exactly\",\n  \"image_prompt\": \"Professional horizontal banner showing {{ $('Loop for 1st LLM1').item.json.Subindustry }} with abstract AI elements, minimalist style, cool blue and charcoal palette, innovative forward-looking mood, no text or logos\"\n}\n\n=== VALIDATION WARNING ===\n\nYour output will be validated for:\n- Structural completeness (all 19 sections present in exact format)\n- Citation integrity (all [n] map to provided references)\n- No fabricated companies, statistics, or references\n- Proper markdown formatting matching first generation\n\nThis is SECOND ATTEMPT. Missing sections, wrong formatting, or fabricated content = AUTOMATIC REJECTION\n"
+            },
+            {
+              "content": "=You are a legally-compliant AI content writer with STRICT structural adherence requirements.\n\nREGENERATION CONTEXT:\nThis is SECOND GENERATION after validation failure. You must maintain EXACT structural format from first generation while fixing legal/citation issues.\n\nPRIMARY OBJECTIVES:\n1. Follow the 19-section blueprint EXACTLY - same format, same structure, same heading levels\n2. Use ONLY information from provided References for specific claims\n3. Fix citation issues from first attempt (add [n] citations or \"(citation needed)\")\n4. Maintain professional quality while avoiding fabrication\n\nSTRUCTURAL REQUIREMENTS (CRITICAL):\n- Generate ALL 19 sections in specified order\n- Section 1: NO markdown heading - just two plain text lines\n- Section 2: Single # H1 heading\n- Sections 3-19: ### headings for main sections\n- #### headings ONLY in: Deep Dive (3), Implementation Blueprint (3), Case Studies (2)\n- Meet minimum content lengths for each section\n- Include all required tables, bullets, and CTAs in exact formats\n\nEVIDENCE REQUIREMENTS:\nEvery specific claim must be:\n1. Cited from provided References [n], OR\n2. Marked as \"(citation needed)\", OR\n3. Expressed as general industry knowledge\n\nPROHIBITED ACTIONS:\n- Skipping or combining blueprint sections\n- Using ## headings (not in blueprint)\n- Inventing reference citations or URLs\n- Using company names not in References\n- Adding statistics without [n] citations or \"(citation needed)\"\n- Naming specific vendor products unless cited\n- Creating \"Real Example\" case studies without verified companies\n- Numbering references in References section\n\nREQUIRED ACTIONS:\n- List References section as plain URLs (not numbered [1], [2]...)\n- Use generic terminology for tools/platforms unless cited\n- Create anonymized case studies by default\n- Mark speculative claims with \"(citation needed)\"\n- Generate comprehensive content for ALL sections matching first generation format\n- Maintain exact markdown formatting from blueprint\n\nFORMATTING CONTEXT:\nFirst generation used specific table formats, bullet styles, and heading hierarchy. Match this exactly while fixing only the content issues flagged in validation.\n\nVALIDATION IMPACT:\nYour output undergoes strict validation. Structural deviations or factual fabrication causes automatic rejection. This is your final regeneration attempt - match structure exactly, fix citations completely.\n",
+              "role": "system"
+            }
+          ]
+        },
+        "options": {
+          "maxTokens": 10000,
+          "temperature": 0.2
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        752,
+        1152
+      ],
+      "id": "6c30f6d9-4ba7-47ab-9bcc-347bad17cafc",
+      "name": "LLM Content Generation Reattempt1"
+    },
+    {
+      "parameters": {
+        "messages": {
+          "message": [
+            {
+              "content": "=FINAL LEGAL COMPLIANCE VALIDATION - REGENERATED CONTENT\n\nREGENERATED CONTENT TO VALIDATE:\n{{ $('Pass output16').item.json.markdown }}\n\nVERIFIED REFERENCES (ONLY VALID SOURCES):\n{{ $('Loop for 1st LLM1').item.json.References }}\n{{ $('Loop for 1st LLM1').item.json.Other_References }}\n\nINPUT METADATA:\nIndustry: {{ $('Loop for 1st LLM1').item.json.Industry }}\nSubIndustry: {{ $('Loop for 1st LLM1').item.json.Subindustry }}\nDescription: {{ $('Loop for 1st LLM1').item.json.Description }}\n\nVALIDATION CONTEXT:\nThis is SECOND-GENERATION content after first validation failure.\nFocus on verifying that previous legal issues have been corrected.\n\nPRIMARY CHECKS:\n1. All numeric claims must have [n] citations\n2. No company names unless verified in provided References\n3. No fabricated URLs in References section\n4. No specific vendor products without citations\n\nPASS CRITERIA (MORE PERMISSIVE):\n- Zero critical issues (no fabricated URLs or unverified companies)\n- Uncited numeric claims <= 3 (down from 5)\n- Hallucination rate < 0.25\n- Compliance score >= 70\n\nThis is the final validation attempt. Be thorough but fair.\n",
+              "role": "system"
+            },
+            {
+              "content": "=You are the final-stage legal validator. This content was regenerated after failing first validation.\n\nVALIDATION STEPS:\n\nSTEP 1: VERIFY CONTENT EXISTS\nCheck if markdown content is present and not empty\nIf empty or missing: Return FAIL with CRITICAL structural issue\n\nSTEP 2: SCAN FOR NUMERIC CLAIMS\nFind all specific numbers in content:\n- Percentages, dollar amounts, metrics\n- Record location and check for [n] citation\n- Count uncited numeric claims\n\nSTEP 3: CHECK CITATIONS\nCount [n] citations in content\nCount references in References section\nEnsure each [n] maps to a reference\nFlag orphans (citation number > reference count)\n\nSTEP 4: VERIFY COMPANIES\nSearch for capitalized company names\nExclude anonymized: \"A company\", \"An organization\"\nCheck each against input References\nFlag if not found\n\nSTEP 5: CHECK REFERENCE URLS\nExtract URLs from References section\nCompare to input References\nFlag fabricated URLs\n\nSTEP 6: APPLY TOLERANCES\nAllow:\n- \"(citation needed)\" statements\n- Generic terms\n- Anonymized examples\n- Qualitative KPIs\n\nFlag as MAJOR:\n- Uncited statistics\n- Unverified products\n\nFlag as CRITICAL:\n- Fabricated URLs\n- Unverified companies\n\nSTEP 7: SCORE AND DECIDE\n\ncritical_count = fabricated URLs + unverified companies\nmajor_count = uncited numeric claims\ncompliance_score = 100 - (critical_count × 25) - (major_count × 10)\nhallucination_rate = uncited_claims / max(1, total_numeric_claims)\n\nFAIL if:\n- critical_count > 0\n- major_count > 5\n- hallucination_rate > 0.30\n- compliance_score < 65\n\nPASS if:\n- critical_count = 0\n- major_count <= 3\n- hallucination_rate < 0.25\n- compliance_score >= 70\n\nNEEDS_REVIEW otherwise\n\nOUTPUT (JSON only):\n\n{\n  \"validation_status\": \"PASS\" | \"NEEDS_REVIEW\" | \"FAIL\",\n  \"legal_risk_level\": \"NONE\" | \"LOW\" | \"MEDIUM\" | \"HIGH\" | \"CRITICAL\",\n  \"safe_to_publish\": true | false,\n  \n  \"critical_legal_issues\": [\n    {\n      \"type\": \"FALSE_CLAIM\" | \"SOURCE_FABRICATION\",\n      \"claim\": \"exact text\",\n      \"location\": \"section\",\n      \"legal_exposure\": \"risk description\",\n      \"evidence\": \"missing verification\",\n      \"citation\": \"[X]\" | \"NO CITATION\",\n      \"action_required\": \"REMOVE | ADD_CITATION | ANONYMIZE\"\n    }\n  ],\n  \n  \"hallucination_analysis\": {\n    \"total_numeric_claims\": 0,\n    \"uncited_numeric_claims\": 0,\n    \"fabricated_claims\": [\n      {\n        \"claim\": \"text\",\n        \"location\": \"section\",\n        \"type\": \"statistic\",\n        \"severity\": \"MAJOR\"\n      }\n    ],\n    \"hallucination_rate\": 0.0\n  },\n  \n  \"reference_verification\": {\n    \"extracted_urls\": [{\"url\": \"...\", \"appears_in_input_refs\": true}],\n    \"fabricated_urls\": 0\n  },\n  \n  \"citation_integrity\": {\n    \"total_citations\": 0,\n    \"orphan_citations\": 0,\n    \"uncited_numeric_claims\": 0\n  },\n  \n  \"compliance_score\": 0,\n  \"overall_risk_score\": 0,\n  \n  \"recommendations\": [\"specific fix\"],\n  \"publish_decision\": \"APPROVED\" | \"REQUIRES_MANUAL_REVIEW\" | \"REJECTED\",\n  \"reviewer_notes\": \"summary\"\n}\n"
+            }
+          ]
+        },
+        "simplify": true,
+        "options": {
+          "temperature": 0.1
+        },
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.perplexity",
+      "typeVersion": 1,
+      "position": [
+        1232,
+        1152
+      ],
+      "id": "71148714-6559-4078-b240-188a31454159",
+      "name": "Validation Node "
+    },
+    {
+      "parameters": {
+        "jsCode": "const results = [];\n\nfor (const item of $input.all()) {\n  let message = item.json.message;\n\n  if (typeof message === 'string') {\n\n    // Remove starting ```json or ``` or ```something\n    message = message.replace(/^```[\\s\\S]*?\\n/, '');\n\n    // Remove ending ```\n    message = message.replace(/```$/, '').trim();\n  }\n\n  let llmOutput;\n  try {\n    llmOutput = JSON.parse(message);\n  } catch (err) {\n    llmOutput = { raw: item.json.message, parseError: err.message };\n  }\n\n  results.push({\n    json: {\n      ...llmOutput,\n      id: item.json.id,\n      citations: item.json.citations\n    }\n  });\n}\n\nreturn results;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1424,
+        1152
+      ],
+      "id": "33607805-34a0-4dc8-b9e0-95a5aca1a822",
+      "name": "Validation Node 2 Output1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const results = [];\n\nfor (const item of $input.all()) {\n  // Access the nested content from the message object\n  let raw =\n    item.json?.message?.content ||\n    item.json?.completion ||\n    item.json?.output ||\n    item.json?.choices?.[0]?.message?.content ||\n    item.json;\n\n  if (!raw) continue;\n\n  // If already structured JSON (object form)\n  if (typeof raw === \"object\" && raw !== null && (raw.markdown || raw.image_prompt)) {\n    results.push({\n      json: {\n        markdown: String(raw.markdown || \"\").trim(),\n        image_prompt: String(raw.image_prompt || \"\").trim(),\n      },\n    });\n    continue;\n  }\n\n  // Convert to string and clean out code fences or JSON labels\n  let cleaned = String(raw)\n    .trim()\n    .replace(/^```(?:json)?/i, \"\") // remove starting ``` or ```json\n    .replace(/```$/i, \"\") // remove ending ```\n    .trim();\n\n  let parsed;\n  try {\n    // Try parsing as JSON\n    parsed = JSON.parse(cleaned);\n  } catch (err) {\n    // Fallback for malformed JSON or text\n    const markdownMatch = cleaned.match(/\"markdown\"\\s*:\\s*\"((?:[^\"\\\\]|\\\\.)*)\"/s);\n    const imageMatch = cleaned.match(/\"image_prompt\"\\s*:\\s*\"((?:[^\"\\\\]|\\\\.)*)\"/s);\n\n    parsed = {\n      markdown: markdownMatch\n        ? markdownMatch[1].replace(/\\\\\"/g, '\"').replace(/\\\\n/g, \"\\n\").trim()\n        : cleaned.trim(),\n      image_prompt: imageMatch\n        ? imageMatch[1].replace(/\\\\\"/g, '\"').trim()\n        : \"\",\n    };\n  }\n\n  // Final cleanup for markdown text\n  const markdown = String(parsed.markdown || \"\")\n    .replace(/^```(?:markdown)?/i, \"\")\n    .replace(/```$/i, \"\")\n    .trim();\n\n  results.push({\n    json: {\n      markdown,\n      image_prompt: String(parsed.image_prompt || \"\").trim(),\n    },\n  });\n}\n\nreturn results;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        144,
+        352
+      ],
+      "id": "f2a22a3e-21ac-4e21-addf-5b150d6e4dc8",
+      "name": "Pass output1"
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "queryString": "Chatgpt_industries_deduped",
+        "filter": {
+          "driveId": {
+            "mode": "list",
+            "value": "My Drive"
+          },
+          "folderId": {
+            "__rl": true,
+            "value": "1t9gGPmWcZj8ku46RidjQjwXd5wMUpO9J",
+            "mode": "list",
+            "cachedResultName": "Subindustry_Web_pages_content",
+            "cachedResultUrl": "https://drive.google.com/drive/folders/1t9gGPmWcZj8ku46RidjQjwXd5wMUpO9J"
+          },
+          "whatToSearch": "files",
+          "fileTypes": [
+            "application/vnd.google-apps.spreadsheet"
+          ]
+        },
+        "options": {
+          "fields": [
+            "id"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -2816,
+        336
+      ],
+      "id": "34b8e7e8-1c9d-42be-ad7b-918ba6200e0d",
+      "name": "Search Original sheet1"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {
+          "googleFileConversion": {
+            "conversion": {
+              "docsToFormat": "text/plain"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -2656,
+        336
+      ],
+      "id": "e05435a3-3121-4cd4-975f-0bc4b4c1f5a7",
+      "name": "Download Gsheet1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the array returned by HTTP Request node\nconst httpData = $items(\"HTTPRequest\")[0].json;\n\n// If it's an array (like your JSON), take the first object\nconst spreadsheet = Array.isArray(httpData) ? httpData[0] : httpData;\n\n// Safely extract the sheets\nconst sheets = spreadsheet.sheets || [];\n\nreturn sheets.map((sheet, index) => {\n  return {\n    json: {\n      sheetId: sheet.properties.sheetId,\n      sheetName: sheet.properties.title,\n    },\n    pairedItem: { item: index },\n  };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2368,
+        336
+      ],
+      "id": "8b7dea58-10ff-4c75-8975-18f5411bc466",
+      "name": "Extract the sheets1"
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "filter": {
+          "driveId": {
+            "mode": "list",
+            "value": "My Drive"
+          },
+          "folderId": {
+            "__rl": true,
+            "value": "1t9gGPmWcZj8ku46RidjQjwXd5wMUpO9J",
+            "mode": "list",
+            "cachedResultName": "Subindustry_Web_pages_content",
+            "cachedResultUrl": "https://drive.google.com/drive/folders/1t9gGPmWcZj8ku46RidjQjwXd5wMUpO9J"
+          },
+          "whatToSearch": "folders"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -2816,
+        672
+      ],
+      "id": "32be09e2-72e5-4cba-bc88-a8f4e68d42b1",
+      "name": "Get folders ids1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0bed9c27-4332-4242-9ed7-171be6e583dd",
+              "name": "sheet_details",
+              "value": "={{ $('Extract the sheets1').all()}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1536,
+        352
+      ],
+      "id": "440afce7-c429-4ceb-ab98-0bb90c8c28df",
+      "name": "Pass Gsheet data2",
+      "alwaysOutputData": true,
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse the JSON string\nconst sheetDetailsString = $input.first().json.sheet_details;\nconst sheetDetailsArray = JSON.parse(sheetDetailsString);\n\n// Map each sheet detail to a separate item with proper structure\nreturn sheetDetailsArray.map(item => ({\n  json: {\n    sheetId: item.json.sheetId,\n    sheetName: item.json.sheetName\n  }\n}));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1392,
+        352
+      ],
+      "id": "1893bb8d-9c01-44b7-8979-f71471618b39",
+      "name": "Pass Gsheet data3"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -1216,
+        352
+      ],
+      "id": "f89e9556-9548-4ce3-b72f-4294c8a3ff3d",
+      "name": "Loop1",
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1yLnXK3gq5SKF4dr9u89f9d7AwKUwF0hPvWp1WYF7FoI",
+          "mode": "list",
+          "cachedResultName": "Chatgpt_industries_deduped",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1yLnXK3gq5SKF4dr9u89f9d7AwKUwF0hPvWp1WYF7FoI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "={{ $('Pass Gsheet data3').item.json.sheetId }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -1168,
+        608
+      ],
+      "id": "8f0806ac-4970-4012-86d3-64126c6af726",
+      "name": "Get all row(s) in sheets1",
+      "executeOnce": false,
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Simply return all items from the loop\nreturn $input.all().map(item => ({ json: item.json }));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1008,
+        336
+      ],
+      "id": "6dd0cf82-0f7e-4248-94e3-3c1ad0fcc377",
+      "name": "Collect data from all industries1",
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "1d604fd8-f267-445a-a4e2-506ebba7932c",
+              "leftValue": "={{ $json[\"Markdown format Word Doc Created\"] }}",
+              "rightValue": "Yes",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "621452b0-4364-43e8-a9df-14f5905b39d6",
+              "leftValue": "={{ $json[\"Markdown File Generated \"] }}",
+              "rightValue": "Yes",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "144f14f8-d32b-4fc8-bb46-788f387d84ea",
+              "leftValue": "={{ $json[\"Image Generated\"] }}",
+              "rightValue": "Yes",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "ad6d5108-ef27-4897-ac40-7fd561e70839",
+              "leftValue": "={{ $json[\"KPI Generated\"] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -832,
+        336
+      ],
+      "id": "f80efd36-e388-422a-a7b7-ef0cf9ccafee",
+      "name": "If condition (Only forward data if rows are empty)1",
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "advanced": true,
+        "mergeByFields": {
+          "values": [
+            {
+              "field1": "Industry",
+              "field2": "folderName"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -624,
+        336
+      ],
+      "id": "48595569-f9b1-4953-b17e-e803ec9768b3",
+      "name": "Combine Folder id with name1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -416,
+        336
+      ],
+      "id": "2b1b4077-8ac9-4898-a3b0-0a95f52faf9f",
+      "name": "Loop for 1st LLM1"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1yLnXK3gq5SKF4dr9u89f9d7AwKUwF0hPvWp1WYF7FoI/edit?gid=1255506520#gid=1255506520",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "={{ $('Combine Folder id with name1').item.json.folderName }}",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Id": "={{ $('Combine Folder id with name1').item.json.Id }}",
+            "KPI Generated": "Yes",
+            "KPI(primary)": "={{ $json[\"KPI(primary)\"] }}",
+            "KPI(secondary)": "={{ $json[\"KPI(secondary)\"] }}"
+          },
+          "matchingColumns": [
+            "Id"
+          ],
+          "schema": [
+            {
+              "id": "Id",
+              "displayName": "Id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Industry",
+              "displayName": "Industry",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Subindustry",
+              "displayName": "Subindustry",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Business_Function",
+              "displayName": "Business_Function",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Business_Capability",
+              "displayName": "Business_Capability",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Stakeholder_Or_User",
+              "displayName": "Stakeholder_Or_User",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Title_Of_AI_Use_Case",
+              "displayName": "Title_Of_AI_Use_Case",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Description",
+              "displayName": "Description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Impact",
+              "displayName": "Impact",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Action_Implementation_Plan",
+              "displayName": "Action_Implementation_Plan",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Expected_Outcomes_And_Results",
+              "displayName": "Expected_Outcomes_And_Results",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Datasets",
+              "displayName": "Datasets",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "AI_Capabilities_And_Tech",
+              "displayName": "AI_Capabilities_And_Tech",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Digital_Platforms_And_Tools",
+              "displayName": "Digital_Platforms_And_Tools",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "AI_Algo_And_Frameworks",
+              "displayName": "AI_Algo_And_Frameworks",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Tools_And_Models",
+              "displayName": "Tools_And_Models",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "References",
+              "displayName": "References",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Other_References",
+              "displayName": "Other_References",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "combined_text",
+              "displayName": "combined_text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "__merged__",
+              "displayName": "__merged__",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Markdown format Word Doc Created",
+              "displayName": "Markdown format Word Doc Created",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Markdown File Generated ",
+              "displayName": "Markdown File Generated ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Image Generated",
+              "displayName": "Image Generated",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Completed",
+              "displayName": "Completed",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Validation Status",
+              "displayName": "Validation Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "KPI Generated",
+              "displayName": "KPI Generated",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "KPI(primary)",
+              "displayName": "KPI(primary)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "KPI(secondary)",
+              "displayName": "KPI(secondary)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        144,
+        528
+      ],
+      "id": "cc6484ae-c9c3-4743-aecf-e1bf2277f58e",
+      "name": "Update row in sheet",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse and format KPIs with clear headers and separators\nconst items = [];\n\nfor (const item of $input.all()) {\n  try {\n    let responseText = item.json.choices?.[0]?.message?.content || item.json.response || item.json.output;\n    responseText = responseText.replace(/``````\\n?/g, '').trim();\n    const kpiData = JSON.parse(responseText);\n    \n    // Format with numbered headers and separators\n    const formatKPIs = (kpis) => {\n      return kpis.map((kpi, index) => {\n        return `KPI ${index + 1}: ${kpi.kpi}\\nWhy it matters: ${kpi.why_it_matters}`;\n      }).join('\\n---\\n');\n    };\n    \n    const primaryKPIsDetailed = formatKPIs(kpiData.primary_kpis);\n    const secondaryKPIsDetailed = formatKPIs(kpiData.secondary_kpis);\n    \n    items.push({ \n      json: {\n        use_case_id: kpiData.use_case_id,\n        use_case_name: kpiData.use_case_name,\n        domain: kpiData.domain,\n        'KPI(primary)': primaryKPIsDetailed,\n        'KPI(secondary)': secondaryKPIsDetailed\n      }\n    });\n    \n  } catch (error) {\n    items.push({\n      json: {\n        error: true,\n        error_message: error.message,\n        raw_response: item.json\n      }\n    });\n  }\n}\n\nreturn items;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -16,
+        528
+      ],
+      "id": "1f56e961-ae49-482e-838f-dd1fc0960e05",
+      "name": "Pass output2"
+    },
+    {
+      "parameters": {
+        "messages": {
+          "message": [
+            {
+              "content": "=You are an AI KPI mapping specialist. Your role is to analyze enterprise AI use cases and identify industry-standard Key Performance Indicators (KPIs).\n\nFor each use case, you must:\n- Identify 2-3 Primary KPIs that directly measure business value and operational impact\n- Identify 1-2 Secondary KPIs that provide supporting insights\n- Select only universally recognized, industry-standard KPIs\n- Provide clear justification for each KPI selection\n\nAlways return your response as valid JSON using this exact structure:\n{\n  \"use_case_id\": \"\",\n  \"use_case_name\": \"\",\n  \"domain\": \"\",\n  \"primary_kpis\": [\n    { \"kpi\": \"\", \"why_it_matters\": \"\" }\n  ],\n  \"secondary_kpis\": [\n    { \"kpi\": \"\", \"why_it_matters\": \"\" }\n  ]\n}\n\nIndustry-standard KPIs by domain:\n- Support/CX: FCR, AHT, Ticket Deflection, CSAT, NPS, Escalation Rate\n- Sales: Win Rate, Sales Cycle Length, Pipeline Coverage, CAC, Conversion Rate\n- Supply Chain: OTIF, Inventory Turns, Forecast Accuracy, Lead Time\n- Finance: Days Sales Outstanding, Close Cycle Time, Processing Cost\n- HR: Time to Fill, Quality of Hire, Retention Rate, Employee Satisfaction\n- IT/Ops: MTTR, MTBF, Incident Volume, SLA Compliance\n- Marketing: CAC, ROAS, Conversion Rate, Lead Quality Score\n- Manufacturing: OEE, Yield Rate, Scrap Rate, Downtime\n\nReturn only the JSON object without markdown formatting or additional commentary.\n",
+              "role": "system"
+            },
+            {
+              "content": "=Analyze the following AI use case and map it to industry-standard KPIs:\n\nID: {{ $json[\"Id\"] }}\nDomain: {{ $json.Industry }}\nUse Case Name:{{ $json.Title_Of_AI_Use_Case }}\nStakeholders: {{ $json.Stakeholder_Or_User }}\nDescription: {{ $json.Description }}\nTechnologies: {{ $json.Tools_And_Models }}\n{{ $json.Digital_Platforms_And_Tools }}\n{{ $json.AI_Algo_And_Frameworks }}\nData Sources: {{ $json.References }}\n{{ $json.Other_References }}\nOutcomes: {{ $json.Expected_Outcomes_And_Results }}\n\nAnalyze this use case and return Primary KPIs (2-3) and Secondary KPIs (1-2) in the required JSON format."
+            }
+          ]
+        },
+        "options": {},
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.perplexity",
+      "typeVersion": 1,
+      "position": [
+        -176,
+        528
+      ],
+      "id": "40a7d722-033a-4479-a323-026e7cf84d0b",
+      "name": "Message a model1"
+    },
+    {
+      "parameters": {
+        "mode": "chooseBranch"
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        384,
+        368
+      ],
+      "id": "d47d71f1-0ee3-4b7a-aee1-03e161efa7bd",
+      "name": "Merge"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Search existing folders": {
+      "main": [
+        [
+          {
+            "node": "Exiting folders names",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Exiting folders names": {
+      "main": [
+        [
+          {
+            "node": "Check if New industry is added",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Check if New industry is added": {
+      "main": [
+        [
+          {
+            "node": "Create folder with new industry name",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create folder with new industry name": {
+      "main": [
+        [
+          {
+            "node": "Merge data",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge data": {
+      "main": [
+        [
+          {
+            "node": "Pass Gsheet data2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Image": {
+      "main": [
+        [
+          {
+            "node": "Set base for conversion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set base for conversion": {
+      "main": [
+        [
+          {
+            "node": "Convert Images",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert Images": {
+      "main": [
+        [
+          {
+            "node": "Upload Images",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop for 2nd LLM": {
+      "main": [
+        [
+          {
+            "node": "Loop for 1st LLM1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update validation status1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTPRequest": {
+      "main": [
+        [
+          {
+            "node": "Extract the sheets1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript17": {
+      "main": [
+        [
+          {
+            "node": "Combine Folder id with name1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Upload Doc10": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields23",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get markdown data11": {
+      "main": [
+        [
+          {
+            "node": "Upload Doc10",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to Markdown15": {
+      "main": [
+        [
+          {
+            "node": "Upload md file13",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields23": {
+      "main": [
+        [
+          {
+            "node": "Convert to Markdown15",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload md file13": {
+      "main": [
+        [
+          {
+            "node": "Loop for 1st LLM1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet5": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items25",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items25": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Update row in sheet5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If3": {
+      "main": [
+        [
+          {
+            "node": "Get markdown data11",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop for 2nd LLM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pass output16": {
+      "main": [
+        [
+          {
+            "node": "Validation Node ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If4": {
+      "main": [
+        [
+          {
+            "node": "Get markdown data1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Doc1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields24",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get markdown data1": {
+      "main": [
+        [
+          {
+            "node": "Upload Doc1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to Markdown16": {
+      "main": [
+        [
+          {
+            "node": "Upload md file14",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields24": {
+      "main": [
+        [
+          {
+            "node": "Convert to Markdown16",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload md file14": {
+      "main": [
+        [
+          {
+            "node": "Loop for 2nd LLM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LLM Content Generation1": {
+      "main": [
+        [
+          {
+            "node": "Pass output1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validation node1": {
+      "main": [
+        [
+          {
+            "node": "Validation node output1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validation node output1": {
+      "main": [
+        [
+          {
+            "node": "If3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update validation status1": {
+      "main": [
+        [
+          {
+            "node": "LLM Content Generation Reattempt1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LLM Content Generation Reattempt1": {
+      "main": [
+        [
+          {
+            "node": "Pass output16",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validation Node ": {
+      "main": [
+        [
+          {
+            "node": "Validation Node 2 Output1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validation Node 2 Output1": {
+      "main": [
+        [
+          {
+            "node": "If4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pass output1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Original sheet1": {
+      "main": [
+        [
+          {
+            "node": "Download Gsheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Gsheet1": {
+      "main": [
+        [
+          {
+            "node": "HTTPRequest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract the sheets1": {
+      "main": [
+        [
+          {
+            "node": "Check if New industry is added",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get folders ids1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript17",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pass Gsheet data2": {
+      "main": [
+        [
+          {
+            "node": "Pass Gsheet data3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pass Gsheet data3": {
+      "main": [
+        [
+          {
+            "node": "Loop1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop1": {
+      "main": [
+        [
+          {
+            "node": "Collect data from all industries1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get all row(s) in sheets1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get all row(s) in sheets1": {
+      "main": [
+        [
+          {
+            "node": "Loop1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Collect data from all industries1": {
+      "main": [
+        [
+          {
+            "node": "If condition (Only forward data if rows are empty)1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If condition (Only forward data if rows are empty)1": {
+      "main": [
+        [
+          {
+            "node": "Combine Folder id with name1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine Folder id with name1": {
+      "main": [
+        [
+          {
+            "node": "Loop for 1st LLM1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop for 1st LLM1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items25",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "LLM Content Generation1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Message a model1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Pass output2": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model1": {
+      "main": [
+        [
+          {
+            "node": "Pass output2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Validation node1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "3c500734-0006-41f5-8e62-8821b4cbc195",
+  "meta": {
+    "instanceId": "b043b0ab5ae7b34eed53b71d624d80c591fc6f14e364a5462d764ddd2b09fab5"
+  },
+  "id": "PsnUZqv7Win9xwrt",
+  "tags": []
+}
