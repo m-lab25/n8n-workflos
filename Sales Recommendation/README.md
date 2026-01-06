@@ -85,6 +85,59 @@ This automated solution transforms the lead engagement process by intelligently 
 | **Data Processing** | Custom JavaScript (ES6+) |
 
 ---
+## Required credentials
+
+To run this workflow in n8n, configure the following credentials in your n8n instance (do **not** commit secrets to GitHub):
+
+1. **Google Sheets**
+   - A Google API credential with access to the spreadsheet ID used in the nodes (e.g. `1y7jcrKOeskvI1Po_anS5U9QenZgf-e-oPzMiliPwZOw`). [file:1]
+   - Required scopes typically include access to read and edit Google Sheets.
+   - In n8n, create a **Google Sheets** credential and select it in all Google Sheets nodes.
+
+2. **Perplexity (LLM)**
+   - An API key for the Perplexity AI API (or the hosting you are using for the `perplexity` node). [file:1]
+   - In n8n, create the corresponding **Perplexity** (or generic HTTP/LLM) credential and reference it in:
+     - `Message a model`
+     - `Message a model1`
+     - `Message a model2` [file:1]
+
+3. **Salesforce**
+   - A Salesforce connected app / user with API access to the Lead object and the custom fields:
+     - `Client_Id__c`
+     - `Product_Inquiry__c`
+     - `Product_Recommended__c`
+     - `Email_Message__c`
+     - `Timestamp__c` [file:1]
+   - In n8n, configure a **Salesforce** credential (OAuth or username/password + token) and select it in:
+     - `Get many leads`
+     - `Update a lead` [file:1]
+
+4. **(Optional) Timezone / Date & Time node**
+   - If you choose to use a Date & Time node instead of code for timestamps, configure it to use the `Asia/Kolkata` timezone (IST) and map its output to the `Timestamp` or `Timestamp__c` field used in the code. [file:1]
+
+## Environment variables and configuration
+
+Depending on how you structure your n8n instance, you may want to keep sensitive values as environment variables and reference them in credentials or nodes:
+
+- `PERPLEXITY_API_KEY` – API key for the Perplexity node.
+- `GOOGLE_SHEETS_CLIENT_ID`, `GOOGLE_SHEETS_CLIENT_SECRET`, etc. – values used by n8n’s Google Sheets OAuth credential.
+- `SALESFORCE_CLIENT_ID`, `SALESFORCE_CLIENT_SECRET`, `SALESFORCE_USERNAME`, `SALESFORCE_PASSWORD`, `SALESFORCE_TOKEN` – for the Salesforce credential. [file:1]
+
+Do **not** store any of these secrets directly inside the JSON workflow in your GitHub repository.
+
+## Usage
+
+1. Import the JSON file into your n8n instance via “Import from file”.
+2. Configure:
+   - Google Sheets credentials and update sheet IDs/ranges if your copies differ.
+   - Perplexity credentials and, if needed, the model name and `response_format` JSON schema.
+   - Salesforce credentials and confirm custom field API names. [file:1]
+3. Run once using the manual trigger to validate:
+   - Recommendation mapping.
+   - LLM JSON parsing.
+   - Write‑back to Sheets and Salesforce. [file:1]
+4. Enable the schedule trigger to run the workflow automatically on your desired interval. [file:1]
+
 
 **🚦 Workflow Execution**
 
@@ -127,6 +180,15 @@ This automated solution transforms the lead engagement process by intelligently 
 * No hardcoded API keys or sensitive data exist within the workflow.  
 * Salesforce API access follows strict least-privilege principles.  
 * Data handling fully complies with applicable regional privacy regulations.
+
+
+
+## Notes
+
+- The workflow is designed to be **case‑insensitive** when matching recommended products to the approved list. [file:1]
+- All LLM outputs are parsed defensively: the code handles string, array, and JSON cases and adds sensible defaults if the model returns malformed JSON. [file:1]
+- Timestamps are generated or normalized in **IST (UTC+05:30)** and written as human‑readable strings like `YYYY‑MM‑DD HH:MM:SS IST (+05:30)`. [file:1]
+
 
  
 
